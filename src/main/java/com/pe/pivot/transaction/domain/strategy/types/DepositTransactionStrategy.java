@@ -1,47 +1,45 @@
-package com.pe.pivot.transaction.domain.strategy.Types;
+package com.pe.pivot.transaction.domain.strategy.types;
 
 import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionType;
-import com.pe.pivot.transaction.domain.port.out.CreditClientPort;
+import com.pe.pivot.transaction.domain.port.out.AccountClientPort;
 import com.pe.pivot.transaction.domain.port.out.CustomerClientPort;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
 import com.pe.pivot.transaction.domain.strategy.AbstractTransactionStrategy;
 import io.reactivex.rxjava3.core.Single;
 
 /**
- * Concrete Strategy for executing CREDIT_CONSUMPTION transactions against ms-credit (:8083).
+ * Concrete Strategy for executing bank account DEPOSIT transactions against ms-account (:8082)
  */
-public class CreditConsumptionTransactionStrategy extends AbstractTransactionStrategy {
+public class DepositTransactionStrategy extends AbstractTransactionStrategy {
+  private final AccountClientPort accountClient;
 
-  private final CreditClientPort creditClient;
-
-  public CreditConsumptionTransactionStrategy(CustomerClientPort customerClient, TransactionRepositoryPort transactionRepository, CreditClientPort creditClient) {
+  public DepositTransactionStrategy(CustomerClientPort customerClient, TransactionRepositoryPort transactionRepository, AccountClientPort accountClient) {
     super(customerClient, transactionRepository);
-    this.creditClient = creditClient;
+    this.accountClient = accountClient;
   }
 
   /**
-   * Returns the TransactionType that this strategy supports, which is CREDIT_CONSUMPTION.
-   *
-   * @return - the supported TransactionType
+   * Returns the TransactionType that this strategy supports (DEPOSIT).
+   * @return TransactionType.DEPOSIT
    */
   @Override
   public TransactionType getSupportedType() {
-    return TransactionType.CREDIT_CONSUMPTION;
+    return TransactionType.DEPOSIT;
   }
 
   /**
-   * Executes the remote balance update for a CREDIT_CONSUMPTION transaction by calling the ms-credit service.
+   * Executes the remote balance update for a DEPOSIT transaction by calling the AccountClientPort to update the account balance.
    *
    * @param transaction - the transaction for which the balance needs to be updated
    * @return - a Single emitting the ProductBalanceSnapshot after the balance update
    */
   @Override
   protected Single<ProductBalanceSnapshot> executeRemoteBalanceUpdate(Transaction transaction) {
-    return creditClient.updateCreditBalance(
+    return accountClient.updateAccountBalance(
             transaction.getTargetProductId(),
-            TransactionType.CREDIT_CONSUMPTION.getRemoteOperationName(),
+            TransactionType.DEPOSIT.getRemoteOperationName(),
             transaction.getAmount()
     );
   }

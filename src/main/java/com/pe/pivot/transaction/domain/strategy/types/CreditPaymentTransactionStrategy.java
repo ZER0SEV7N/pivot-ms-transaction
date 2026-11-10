@@ -1,4 +1,4 @@
-package com.pe.pivot.transaction.domain.strategy.Types;
+package com.pe.pivot.transaction.domain.strategy.types;
 
 import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.model.Transaction;
