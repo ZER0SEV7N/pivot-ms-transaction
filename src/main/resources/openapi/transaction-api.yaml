@@ -1,0 +1,329 @@
+openapi: 3.0.3
+info:
+  title: Pivot Banking System - Transaction Microservice API
+  description: |
+    RESTful Reactive API for the **Immutable Financial Ledger (`pivot-ms-transaction`)**.
+    Orchestrates financial movements across `ms-customer` (:8081), `ms-account` (:8082), and `ms-credit` (:8083):
+    - `DEPOSIT`: Deposits funds into a passive bank account (`SAVINGS`, `CHECKING`, `FIXED_TERM`).
+    - `WITHDRAWAL`: Withdraws funds from a passive bank account.
+    - `CREDIT_PAYMENT`: Pays loan installments or credit card debt.
+    - `CREDIT_CONSUMPTION`: Charges purchases to a credit card's available line.
+    - **Compensating Reversal (`POST /transactions/{id}/reverse`):** Financial ledger records are immutable (no PUT/DELETE). Errors are corrected via compensating reversal entries.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8084/api/v1
+    description: Local Development Server (ms-transaction)
+
+tags:
+  - name: Transactions
+    description: Operations for registering, querying, and reversing banking transactions
+
+paths:
+  /transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Register and execute a new financial transaction
+      description: |
+        Validates customer status in `ms-customer`, executes the corresponding balance update in `ms-account` or `ms-credit` via the Strategy + Template Method pattern, and records an immutable ledger entry.
+      operationId: registerTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '201':
+          description: Transaction executed and recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Business rule violation (insufficient funds, monthly movement limit reached, inactive customer, or invalid operation for product)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer, Bank Account, or Credit product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - Transactions
+      summary: Retrieve all financial transactions
+      operationId: getAllTransactions
+      responses:
+        '200':
+          description: Stream of all financial transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionResponse'
+
+  /transactions/{id}:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction by unique ID
+      operationId: getTransactionById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/operation/{operationNumber}:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction by unique banking operation number (e.g., OP-20261109-A1B2C3D4)
+      operationId: getTransactionByOperationNumber
+      parameters:
+        - name: operationNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/customer/{customerId}:
+    get:
+      tags:
+        - Transactions
+      summary: Retrieve all transactions executed by a specific customer
+      operationId: getTransactionsByCustomerId
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of customer transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionResponse'
+
+  /transactions/product/{targetProductId}:
+    get:
+      tags:
+        - Transactions
+      summary: Retrieve all transactions associated with a specific Bank Account ID or Credit Product ID
+      operationId: getTransactionsByTargetProductId
+      parameters:
+        - name: targetProductId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of product movement history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionResponse'
+
+  /transactions/{id}/reverse:
+    post:
+      tags:
+        - Transactions
+      summary: Execute a compensating reversal for a COMPLETED transaction
+      description: |
+        Executes the inverse operation in `ms-account` or `ms-credit` (e.g., reversing a WITHDRAWAL performs a compensating DEPOSIT), marks the original transaction as `REVERSED`, and creates a linked reversal audit entry.
+      operationId: reverseTransaction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReversalRequest'
+      responses:
+        '200':
+          description: Transaction reversed successfully (returns the new compensating transaction entry)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Transaction is already REVERSED or cannot be reversed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Original transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    TransactionType:
+      type: string
+      enum:
+        - DEPOSIT
+        - WITHDRAWAL
+        - CREDIT_PAYMENT
+        - CREDIT_CONSUMPTION
+
+    ProductCategory:
+      type: string
+      enum:
+        - BANK_ACCOUNT
+        - CREDIT_PRODUCT
+
+    TransactionStatus:
+      type: string
+      enum:
+        - COMPLETED
+        - REVERSED
+        - REJECTED
+
+    TransactionRequest:
+      type: object
+      required:
+        - customerId
+        - targetProductId
+        - transactionType
+        - currency
+        - amount
+      properties:
+        customerId:
+          type: string
+          description: Customer ID from ms-customer
+          example: "6aed46585fc3615ca5ee19a3"
+        targetProductId:
+          type: string
+          description: Bank Account ID (from ms-account) or Credit ID (from ms-credit)
+          example: "6aed4f6cc3e04e359b52ca47"
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+        currency:
+          type: string
+          enum: [PEN, USD]
+          default: PEN
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 250.00
+        description:
+          type: string
+          example: "ATM Cash Deposit - Agencia San Isidro"
+
+    ReversalRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: "Customer requested reversal due to duplicate charge"
+
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        operationNumber:
+          type: string
+          example: "OP-20261109-8F9A2B1C"
+        customerId:
+          type: string
+        targetProductId:
+          type: string
+        maskedProductNumber:
+          type: string
+          description: Masked account or credit number returned from the target microservice
+          example: "************0-01"
+        productCategory:
+          $ref: '#/components/schemas/ProductCategory'
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+        currency:
+          type: string
+        amount:
+          type: number
+        fee:
+          type: number
+        previousBalance:
+          type: number
+          description: Balance or debt before the transaction
+        newBalance:
+          type: number
+          description: Balance or debt after the transaction
+        description:
+          type: string
+        referenceTransactionId:
+          type: string
+          nullable: true
+          description: Populated when this record is a compensating reversal of a previous transaction
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
