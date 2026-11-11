@@ -1,0 +1,348 @@
+{
+  "info": {
+    "_postman_id": "f4a5b6c7-d8e9-4f0a-8b1c-2d3e4f5a6b7c",
+    "name": "Pivot Banking - ms-transaction",
+    "description": "End-to-End Postman Collection for pivot-ms-transaction (Immutable Financial Ledger: Account Deposits/Withdrawals, Credit Payments/Consumptions, Compensating Reversals, and History Lookups).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Execute Account DEPOSIT (POST /transactions - 201 Created)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var jsonData = pm.response.json();",
+              "if (jsonData.id) {",
+              "    pm.collectionVariables.set(\"depositTxId\", jsonData.id);",
+              "    pm.collectionVariables.set(\"depositOpNumber\", jsonData.operationNumber);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{savingsAccountId}}\",\n  \"transactionType\": \"DEPOSIT\",\n  \"currency\": \"PEN\",\n  \"amount\": 300.00,\n  \"description\": \"Ventanilla Cash Deposit - Agencia San Isidro\"\n}"
+        },
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Execute Account WITHDRAWAL (POST /transactions - 201 Created)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var jsonData = pm.response.json();",
+              "if (jsonData.id) {",
+              "    pm.collectionVariables.set(\"withdrawalTxId\", jsonData.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{savingsAccountId}}\",\n  \"transactionType\": \"WITHDRAWAL\",\n  \"currency\": \"PEN\",\n  \"amount\": 100.00,\n  \"description\": \"ATM Withdrawal - Miraflores\"\n}"
+        },
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. [Error 400] Account Withdrawal Exceeding Available Balance",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{savingsAccountId}}\",\n  \"transactionType\": \"WITHDRAWAL\",\n  \"currency\": \"PEN\",\n  \"amount\": 999999.00,\n  \"description\": \"Attempted Overdraft Withdrawal\"\n}"
+        },
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Execute Credit Card CONSUMPTION (POST /transactions - 201 Created)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_CONSUMPTION\",\n  \"currency\": \"PEN\",\n  \"amount\": 450.00,\n  \"description\": \"POS Purchase - Electronics Store\"\n}"
+        },
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Execute Credit Card PAYMENT (POST /transactions - 201 Created)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_PAYMENT\",\n  \"currency\": \"PEN\",\n  \"amount\": 200.00,\n  \"description\": \"Monthly Credit Card Installment Payment\"\n}"
+        },
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Retrieve All Transactions (GET /transactions)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "7. Get Transaction by ID (GET /transactions/{id})",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/{{depositTxId}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "{{depositTxId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. Get Transaction by Operation Number (GET /transactions/operation/{opNumber})",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/operation/{{depositOpNumber}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "operation",
+            "{{depositOpNumber}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "9. Get All Transactions by Customer ID (GET /transactions/customer/{customerId})",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/customer/{{personalCustomerId}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "customer",
+            "{{personalCustomerId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "10. Get All Movements of a Specific Product (GET /transactions/product/{targetProductId})",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/product/{{savingsAccountId}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "product",
+            "{{savingsAccountId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "11. Execute Compensating Reversal on Withdrawal (POST /transactions/{id}/reverse)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"ATM cash dispenser error - returning funds to customer account\"\n}"
+        },
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/{{withdrawalTxId}}/reverse",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "{{withdrawalTxId}}",
+            "reverse"
+          ]
+        }
+      }
+    },
+    {
+      "name": "12. [Error 400] Try to Reverse an Already REVERSED Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Duplicate reversal attempt\"\n}"
+        },
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/{{withdrawalTxId}}/reverse",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "{{withdrawalTxId}}",
+            "reverse"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "urlMsTransaction",
+      "value": "http://localhost:8084/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "personalCustomerId",
+      "value": "PASTE_YOUR_PERSONAL_CUSTOMER_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "savingsAccountId",
+      "value": "PASTE_YOUR_SAVINGS_ACCOUNT_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "creditCardId",
+      "value": "PASTE_YOUR_CREDIT_CARD_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "depositTxId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "depositOpNumber",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "withdrawalTxId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
