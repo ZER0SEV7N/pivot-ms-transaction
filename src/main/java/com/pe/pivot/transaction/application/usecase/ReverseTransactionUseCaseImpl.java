@@ -58,7 +58,8 @@ public class ReverseTransactionUseCaseImpl implements ReverseTransactionUseCase 
               return strategyRegistry.getStrategy(inverseType)
                       .execute(compensatingTx, rulesProperties.getOperationPrefix(), BigDecimal.ZERO)
                       .flatMap(savedCompensatingTx -> markOriginalAsReversed(original)
-                              .thenReturn(savedCompensatingTx));
+                              .map(ignored -> savedCompensatingTx));
+
             })
             .doOnSuccess(reversed -> log.info(
                     "Transaction reversed successfully. Compensating OperationNumber: {}, ReferenceTxId: {}",

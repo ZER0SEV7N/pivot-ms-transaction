@@ -24,7 +24,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2025.1.1</spring-cloud.version>
+		<spring-cloud.version>2025.1.4</spring-cloud.version>
 		<rxjava3.version>3.1.12</rxjava3.version>
 		<reactor-addons.version>3.6.2</reactor-addons.version>
 	</properties>
