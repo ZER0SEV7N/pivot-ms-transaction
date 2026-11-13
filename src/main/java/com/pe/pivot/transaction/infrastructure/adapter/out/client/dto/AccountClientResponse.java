@@ -15,6 +15,7 @@ public record AccountClientResponse(
         String accountType,
         String currency,
         BigDecimal balance,
+        BigDecimal lastAppliedCommission,
         String status
 ) {
 }

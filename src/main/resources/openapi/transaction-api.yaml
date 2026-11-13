@@ -204,6 +204,97 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /transactions/transfer:
+    post:
+      tags:
+        - Transactions
+      summary: Execute a bank transfer between two accounts (Same customer or third-party)
+      description: |
+        Withdraws funds from `sourceAccountId` (applying commission if free movements are exceeded),
+        deposits funds into `destinationAccountId`, and records linked `TRANSFER_OUT` and `TRANSFER_IN` ledger entries.
+      operationId: transferFunds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '201':
+          description: Bank transfer executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Insufficient funds, same source/destination account, or inactive customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Source or destination bank account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/reports/product/{productId}:
+    get:
+      tags:
+        - Transactions
+      summary: Generate a complete general report for a banking product within a time interval
+      operationId: getProductReportByDateRange
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: true
+          description: Start timestamp in ISO-8601 format (e.g., 2026-11-01T00:00:00Z)
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          description: End timestamp in ISO-8601 format (e.g., 2026-11-30T23:59:59Z)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Consolidated product report within the specified date range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReportResponse'
+
+  /transactions/reports/card/{cardId}/last-movements:
+    get:
+      tags:
+        - Transactions
+      summary: Retrieve the last 10 movements of a credit card or bank account
+      operationId: getLastTenCardMovements
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of the 10 most recent movements ordered by createdAt descending
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionResponse'
+
 components:
   schemas:
     TransactionType:
@@ -213,6 +304,67 @@ components:
         - WITHDRAWAL
         - CREDIT_PAYMENT
         - CREDIT_CONSUMPTION
+        - TRANSFER_OUT
+        - TRANSFER_IN
+
+    TransferRequest:
+      type: object
+      required:
+        - customerId
+        - sourceAccountId
+        - destinationAccountId
+        - currency
+        - amount
+      properties:
+        customerId:
+          type: string
+          example: "6aed46585fc3615ca5ee19a3"
+        sourceAccountId:
+          type: string
+          example: "6aed55d94731e10f45ae38ea"
+        destinationAccountId:
+          type: string
+          example: "6aed56084731e10f45ae38eb"
+        currency:
+          type: string
+          enum: [ PEN, USD ]
+          default: PEN
+        amount:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 150.00
+        description:
+          type: string
+          example: "Inter-account transfer to savings"
+
+    ProductReportResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+        maskedProductNumber:
+          type: string
+        productCategory:
+          $ref: '#/components/schemas/ProductCategory'
+        currency:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        totalTransactions:
+          type: integer
+        totalTransactedAmount:
+          type: number
+        totalFeesCollected:
+          type: number
+        movements:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionResponse'
 
     ProductCategory:
       type: string

@@ -98,6 +98,8 @@ public abstract class AbstractTransactionStrategy implements TransactionExecutio
     tx.setPreviousBalance(snapshot.getPreviousBalance());
     tx.setNewBalance(snapshot.getNewBalance());
     tx.setStatus(TransactionStatus.COMPLETED);
+    BigDecimal resolvedFee = Optional.ofNullable(snapshot.getAppliedCommission()).orElse(Optional.ofNullable(tx.getFee()).orElse(defaultFee));
+    tx.setFee(resolvedFee);
 
     // Set the creation and update timestamps to the current instant
     Instant now = Instant.now();

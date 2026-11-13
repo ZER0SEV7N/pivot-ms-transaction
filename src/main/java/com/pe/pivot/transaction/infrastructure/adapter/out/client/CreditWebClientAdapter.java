@@ -10,6 +10,7 @@ import com.pe.pivot.transaction.infrastructure.adapter.out.client.dto.RemoteErro
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ import java.util.Optional;
 public class CreditWebClientAdapter implements CreditClientPort {
 
   private final WebClient creditWebClient;
+  private final ReactiveCircuitBreakerFactory<?, ?> circuitBreakerFactory;
 
   /**
    * Updates the credit balance for a given credit ID by sending a PATCH request to the ms-credit service.
@@ -45,22 +47,35 @@ public class CreditWebClientAdapter implements CreditClientPort {
    */
   @Override
   public Single<ProductBalanceSnapshot> updateCreditBalance(String creditId, String operationType, BigDecimal amount) {
-    log.debug("Calling ms-credit PATCH /{}/balance with operation: {} and amount: {}", creditId, operationType, amount);
+    log.debug("Calling ms-credit PATCH /{}/balance with operation: {} and amount: {}",
+            creditId, operationType, amount);
 
-    // Create the request payload for the PATCH operation
+    // Build the request payload for the ms-credit service
     RemoteBalanceUpdateRequest payload = RemoteBalanceUpdateRequest.builder()
             .operationType(operationType)
             .amount(amount)
             .build();
 
-    // Create a Mono that performs the PATCH request to ms-credit and maps the response to ProductBalanceSnapshot
+    // Send the PATCH request to ms-credit and handle the response reactively
     Mono<ProductBalanceSnapshot> mono = creditWebClient.patch()
             .uri("/{id}/balance", creditId)
             .bodyValue(payload)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> mapClientError(response, creditId))
             .bodyToMono(CreditClientResponse.class)
-            .map(dto -> toSnapshot(dto, operationType, amount));
+            .map(dto -> toSnapshot(dto, operationType, amount))
+
+            // Apply a circuit breaker to handle potential failures in the ms-credit service, providing a fallback for non-business rule exceptions
+            .transform(it -> circuitBreakerFactory.create("creditServiceCircuitBreaker")
+                    .run(it, throwable -> {
+                      if (throwable instanceof BusinessRuleException || throwable instanceof TargetProductNotFoundException) {
+                        return Mono.error(throwable);
+                      }
+
+                      // Log the error and return a BusinessRuleException for circuit breaker fallback
+                      log.error("Circuit breaker triggered calling ms-credit for creditId {}: {}", creditId, throwable.getMessage());
+                      return Mono.error(new BusinessRuleException("Credit service (ms-credit) is currently unavailable or timed out (2s)."));
+                    }));
 
     return RxJava3Adapter.monoToSingle(mono);
   }
@@ -74,11 +89,12 @@ public class CreditWebClientAdapter implements CreditClientPort {
    * @return - A Mono that emits an error corresponding to the client error received.
    */
   private Mono<? extends Throwable> mapClientError(ClientResponse response, String creditId) {
+    // Log the client error for debugging and monitoring purposes
     if (response.statusCode() == HttpStatus.NOT_FOUND) {
       return Mono.error(new TargetProductNotFoundException("Credit product not found in ms-credit with ID: " + creditId));
     }
 
-    // For other 4xx errors, attempt to extract the error message from the response body
+    // For other 4xx errors, attempt to extract the error message from the response body and throw a BusinessRuleException with that message.
     return response.bodyToMono(RemoteErrorResponse.class)
             .map(err -> new BusinessRuleException(Optional.ofNullable(err.message()).orElse("Credit operation rejected by ms-credit.")))
             .switchIfEmpty(Mono.error(new BusinessRuleException("Credit operation rejected by ms-credit.")));
@@ -95,19 +111,21 @@ public class CreditWebClientAdapter implements CreditClientPort {
    */
   private ProductBalanceSnapshot toSnapshot(CreditClientResponse dto, String operationType, BigDecimal amount) {
 
-    // In credit products, usedAmount represents the outstanding debt balance
+    // Calculate the new and previous debt balances based on the operation type and amount.
     BigDecimal newDebtBalance = Optional.ofNullable(dto.usedAmount()).orElse(BigDecimal.ZERO);
     BigDecimal previousDebtBalance = "CONSUMPTION".equalsIgnoreCase(operationType)
             ? newDebtBalance.subtract(amount)
             : newDebtBalance.add(amount);
 
-    // Build and return the ProductBalanceSnapshot with the calculated balances and other relevant information
+    // Construct and return a ProductBalanceSnapshot with the relevant details,
+    // including product ID, masked product number, currency, previous balance, new balance, and applied commission.
     return ProductBalanceSnapshot.builder()
             .productId(dto.id())
             .maskedProductNumber(dto.creditNumber())
             .currency(dto.currency())
             .previousBalance(previousDebtBalance)
             .newBalance(newDebtBalance)
+            .appliedCommission(BigDecimal.ZERO)
             .build();
   }
 }

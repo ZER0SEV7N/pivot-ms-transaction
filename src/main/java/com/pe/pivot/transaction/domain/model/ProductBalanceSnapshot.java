@@ -24,4 +24,5 @@ public class ProductBalanceSnapshot {
   private String currency;
   private BigDecimal previousBalance;
   private BigDecimal newBalance;
+  private BigDecimal appliedCommission;
 }

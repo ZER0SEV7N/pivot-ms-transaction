@@ -1,10 +1,10 @@
 package com.pe.pivot.transaction.infrastructure.adapter.in.web;
 
-import com.pe.pivot.transaction.domain.port.in.RegisterTransactionUseCase;
-import com.pe.pivot.transaction.domain.port.in.RetrieveTransactionUseCase;
-import com.pe.pivot.transaction.domain.port.in.ReverseTransactionUseCase;
+import com.pe.pivot.transaction.domain.port.in.*;
+import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.ProductReportResponse;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.ReversalRequest;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransactionRequest;
+import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransferRequest;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransactionResponse;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.mapper.TransactionWebMapper;
 import io.reactivex.rxjava3.core.Flowable;
@@ -12,13 +12,9 @@ import io.reactivex.rxjava3.core.Single;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
 
 /**
  * REST Controller implementing the OpenAPI contract for the Immutable Financial Ledger with RxJava 3.
@@ -31,6 +27,8 @@ public class TransactionController {
   private final RegisterTransactionUseCase registerTransactionUseCase;
   private final ReverseTransactionUseCase reverseTransactionUseCase;
   private final RetrieveTransactionUseCase retrieveTransactionUseCase;
+  private final TransferFundsUseCase transferFundsUseCase;
+  private final GenerateTransactionReportUseCase generateTransactionReportUseCase;
   private final TransactionWebMapper mapper;
 
   /**
@@ -50,6 +48,19 @@ public class TransactionController {
   @ResponseStatus(HttpStatus.CREATED)
   public Single<TransactionResponse> registerTransaction(@Valid @RequestBody TransactionRequest request) {
     return registerTransactionUseCase.register(mapper.toDomain(request))
+            .map(mapper::toResponse);
+  }
+
+  /**
+   * Transfer funds between two accounts.
+   *
+   * @param request - The TransferRequest containing details of the transfer, including source and destination accounts, amount, and currency.
+   * @return - A Single emitting the TransactionResponse for the transferred funds, or an error if the transfer fails.
+   */
+  @PostMapping("/transfer")
+  @ResponseStatus(HttpStatus.CREATED)
+  public Single<TransactionResponse> transferFunds(@Valid @RequestBody TransferRequest request) {
+    return transferFundsUseCase.transfer(mapper.toTransferCommand(request))
             .map(mapper::toResponse);
   }
 
@@ -114,6 +125,36 @@ public class TransactionController {
   @GetMapping("/product/{targetProductId}")
   public Flowable<TransactionResponse> getTransactionsByTargetProductId(@PathVariable String targetProductId) {
     return retrieveTransactionUseCase.findByTargetProductId(targetProductId)
+            .map(mapper::toResponse);
+  }
+
+  /**
+   * Generate a product report for a specific product ID within a given date range.
+   * @GET /api/v1/transactions/reports/product/{productId}?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z
+   * @param productId - The unique identifier of the product for which the report is to be generated.
+   * @param startDate - The start date of the reporting period (inclusive) in ISO-8601 format (e.g., 2024-01-01T00:00:00Z).
+   * @param endDate - The end date of the reporting period (inclusive) in ISO-8601 format (e.g., 2024-01-31T23:59:59Z).
+   * @return - A Single emitting the ProductReportResponse containing aggregated transaction data for the specified product and date range,
+   */
+  @GetMapping("/reports/product/{productId}")
+  public Single<ProductReportResponse> getProductReportByDateRange(
+          @PathVariable String productId,
+          @RequestParam Instant startDate,
+          @RequestParam Instant endDate) {
+    return generateTransactionReportUseCase.generateProductReport(productId, startDate, endDate)
+            .map(mapper::toReportResponse);
+  }
+
+  /**
+   * Retrieve the last 10 movements for a specific card/product ID.
+   * @GET /api/v1/transactions/reports/card/{cardId}/last-movements
+   * @param cardId - The unique identifier of the card/product for which the last 10 movements are to be retrieved.
+   * @return - A Flowable emitting TransactionResponse objects for the last 10 transactions associated with the specified card/product ID,
+   * or an empty Flowable if no transactions are found.
+   */
+  @GetMapping("/reports/card/{cardId}/last-movements")
+  public Flowable<TransactionResponse> getLastTenCardMovements(@PathVariable String cardId) {
+    return generateTransactionReportUseCase.getLastTenCardMovements(cardId)
             .map(mapper::toResponse);
   }
 

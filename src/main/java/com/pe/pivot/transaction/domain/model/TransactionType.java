@@ -13,7 +13,9 @@ public enum TransactionType {
   DEPOSIT(ProductCategory.BANK_ACCOUNT, "DEPOSIT", "WITHDRAWAL"),
   WITHDRAWAL(ProductCategory.BANK_ACCOUNT, "WITHDRAWAL", "DEPOSIT"),
   CREDIT_PAYMENT(ProductCategory.CREDIT_PRODUCT, "PAYMENT", "CONSUMPTION"),
-  CREDIT_CONSUMPTION(ProductCategory.CREDIT_PRODUCT, "CONSUMPTION", "PAYMENT");
+  CREDIT_CONSUMPTION(ProductCategory.CREDIT_PRODUCT, "CONSUMPTION", "PAYMENT"),
+  TRANSFER_OUT(ProductCategory.BANK_ACCOUNT, "WITHDRAWAL", "DEPOSIT"),
+  TRANSFER_IN(ProductCategory.BANK_ACCOUNT, "DEPOSIT", "WITHDRAWAL");
 
   private final ProductCategory productCategory;
   private final String remoteOperationName;
@@ -21,8 +23,8 @@ public enum TransactionType {
 
   public TransactionType getCompensatingTransactionType() {
     return switch (this) {
-      case DEPOSIT -> WITHDRAWAL;
-      case WITHDRAWAL -> DEPOSIT;
+      case DEPOSIT, TRANSFER_IN -> WITHDRAWAL;
+      case WITHDRAWAL, TRANSFER_OUT -> DEPOSIT;
       case CREDIT_PAYMENT -> CREDIT_CONSUMPTION;
       case CREDIT_CONSUMPTION -> CREDIT_PAYMENT;
     };
