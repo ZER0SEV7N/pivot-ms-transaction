@@ -1,12 +1,11 @@
 package com.pe.pivot.transaction.domain.model;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 
 /**
  * Domain command object encapsulating parameters for an inter-account bank transfer.

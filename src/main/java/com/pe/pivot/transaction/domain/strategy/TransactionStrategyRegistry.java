@@ -2,21 +2,22 @@ package com.pe.pivot.transaction.domain.strategy;
 
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
 import com.pe.pivot.transaction.domain.model.TransactionType;
-
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Registry/Factory component providing O(1) lookup for TransactionExecutionStrategy implementations.
+ * Registry/Factory component providing O(1) lookup for TransactionExecutionStrategy
+ * implementations.
  */
 public class TransactionStrategyRegistry {
 
   private final Map<TransactionType, TransactionExecutionStrategy> strategyMap;
 
   /**
-   * Constructs a TransactionStrategyRegistry with a list of strategies, mapping each strategy to its supported TransactionType.
+   * Constructs a TransactionStrategyRegistry with a list of strategies, mapping each strategy to
+   * its supported TransactionType.
    *
    * @param strategies - List of TransactionExecutionStrategy implementations to register.
    */

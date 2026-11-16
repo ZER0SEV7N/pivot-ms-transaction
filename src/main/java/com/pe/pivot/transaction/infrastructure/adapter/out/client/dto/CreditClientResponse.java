@@ -1,8 +1,7 @@
 package com.pe.pivot.transaction.infrastructure.adapter.out.client.dto;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
+import lombok.Builder;
 
 /**
  * Immutable DTO representing the JSON response from ms-credit (:8083) after a PATCH /balance.

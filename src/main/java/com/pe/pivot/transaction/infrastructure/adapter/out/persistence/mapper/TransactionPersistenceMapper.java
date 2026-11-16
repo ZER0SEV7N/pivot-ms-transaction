@@ -26,8 +26,14 @@ public class TransactionPersistenceMapper {
             .customerId(domain.getCustomerId())
             .targetProductId(domain.getTargetProductId())
             .maskedProductNumber(domain.getMaskedProductNumber())
-            .productCategory(domain.getProductCategory() != null ? domain.getProductCategory().name() : null)
-            .transactionType(domain.getTransactionType() != null ? domain.getTransactionType().name() : null)
+            .productCategory(
+                    domain.getProductCategory() != null
+                            ? domain.getProductCategory().name()
+                            : null)
+            .transactionType(
+                    domain.getTransactionType() != null
+                            ? domain.getTransactionType().name()
+                            : null)
             .currency(domain.getCurrency())
             .amount(domain.getAmount())
             .fee(domain.getFee())
@@ -54,8 +60,14 @@ public class TransactionPersistenceMapper {
             .customerId(doc.getCustomerId())
             .targetProductId(doc.getTargetProductId())
             .maskedProductNumber(doc.getMaskedProductNumber())
-            .productCategory(doc.getProductCategory() != null ? ProductCategory.valueOf(doc.getProductCategory()) : null)
-            .transactionType(doc.getTransactionType() != null ? TransactionType.valueOf(doc.getTransactionType()) : null)
+            .productCategory(
+                    doc.getProductCategory() != null
+                            ? ProductCategory.valueOf(doc.getProductCategory())
+                            : null)
+            .transactionType(
+                    doc.getTransactionType() != null
+                            ? TransactionType.valueOf(doc.getTransactionType())
+                            : null)
             .currency(doc.getCurrency())
             .amount(doc.getAmount())
             .fee(doc.getFee())

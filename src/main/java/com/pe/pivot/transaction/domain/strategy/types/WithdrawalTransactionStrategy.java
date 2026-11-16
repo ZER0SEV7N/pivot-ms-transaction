@@ -11,12 +11,16 @@ import io.reactivex.rxjava3.core.Single;
 
 /**
  * Concrete Strategy for executing bank account WITHDRAWAL transactions against ms-account (:8082).
- * This strategy handles the specific logic for processing withdrawals, including balance checks and ledger updates.
+ * This strategy handles the specific logic for processing withdrawals, including balance checks
+ * and ledger updates.
  */
 public class WithdrawalTransactionStrategy extends AbstractTransactionStrategy {
   private final AccountClientPort accountClient;
 
-  public WithdrawalTransactionStrategy(CustomerClientPort customerClient, TransactionRepositoryPort transactionRepository, AccountClientPort accountClient) {
+  public WithdrawalTransactionStrategy(
+      CustomerClientPort customerClient,
+      TransactionRepositoryPort transactionRepository,
+      AccountClientPort accountClient) {
     super(customerClient, transactionRepository);
     this.accountClient = accountClient;
   }
@@ -32,7 +36,8 @@ public class WithdrawalTransactionStrategy extends AbstractTransactionStrategy {
   }
 
   /**
-   * Executes the remote balance update for a withdrawal transaction by calling the ms-account service.
+   * Executes the remote balance update for a withdrawal transaction by calling the ms-account
+   * service.
    *
    * @param transaction - the transaction for which the balance needs to be updated
    * @return - a Single emitting the ProductBalanceSnapshot after the balance update

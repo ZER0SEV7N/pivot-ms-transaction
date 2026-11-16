@@ -10,13 +10,12 @@ import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
 import com.pe.pivot.transaction.domain.strategy.TransactionStrategyRegistry;
 import com.pe.pivot.transaction.infrastructure.config.TransactionRulesProperties;
 import io.reactivex.rxjava3.core.Single;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 /**
  * Single Responsibility Use Case for executing compensating transaction reversals
@@ -33,11 +32,14 @@ public class ReverseTransactionUseCaseImpl implements ReverseTransactionUseCase 
   private final TransactionRulesProperties rulesProperties;
 
   /**
-   * Executes a compensating reversal for a given transaction ID, creating a new transaction that negates the effects of the original.
+   * Executes a compensating reversal for a given transaction ID, creating a new transaction that
+   * negates the effects of the original.
    *
    * @param transactionId - the ID of the transaction to be reversed
-   * @param reason - the reason for the reversal, which will be included in the description of the compensating transaction
-   * @return - a Single emitting the newly created compensating transaction after successful reversal
+   * @param reason - the reason for the reversal, which will be included in the description of the
+   *     compensating transaction
+   * @return - a Single emitting the newly created compensating transaction after successful
+   *     reversal
    */
   @Override
   public Single<Transaction> reverse(String transactionId, String reason) {
@@ -47,22 +49,29 @@ public class ReverseTransactionUseCaseImpl implements ReverseTransactionUseCase 
     return findTransactionByIdUseCase.findById(transactionId)
             .flatMap(original -> {
               if (!original.canBeReversed()) {
-                return Single.error(new BusinessRuleException("Transaction cannot be reversed. It is already REVERSED or is itself a reversal entry."));
+                return Single.error(new BusinessRuleException(
+                        "Transaction cannot be reversed. It is already REVERSED or is itself a "
+                                + "reversal entry."));
               }
 
-              // Build the compensating transaction based on the original transaction and the provided reason
+              // Build the compensating transaction based on the original transaction
               Transaction compensatingTx = buildCompensatingTransaction(original, reason);
-              TransactionType inverseType = original.getTransactionType().getCompensatingTransactionType();
+              TransactionType inverseType =
+                      original.getTransactionType().getCompensatingTransactionType();
 
-              // Execute the compensating transaction using the appropriate strategy based on the inverse transaction type
+              // Execute the compensating transaction using the appropriate strategy
               return strategyRegistry.getStrategy(inverseType)
-                      .execute(compensatingTx, rulesProperties.getOperationPrefix(), BigDecimal.ZERO)
+                      .execute(
+                              compensatingTx,
+                              rulesProperties.getOperationPrefix(),
+                              BigDecimal.ZERO)
                       .flatMap(savedCompensatingTx -> markOriginalAsReversed(original)
                               .map(ignored -> savedCompensatingTx));
 
             })
             .doOnSuccess(reversed -> log.info(
-                    "Transaction reversed successfully. Compensating OperationNumber: {}, ReferenceTxId: {}",
+                    "Transaction reversed successfully. Compensating OperationNumber: {}, "
+                            + "ReferenceTxId: {}",
                     reversed.getOperationNumber(), reversed.getReferenceTransactionId()));
   }
 
@@ -70,7 +79,8 @@ public class ReverseTransactionUseCaseImpl implements ReverseTransactionUseCase 
    * Builds a compensating transaction that negates the effects of the original transaction.
    *
    * @param original - the original transaction to be reversed
-   * @param reason - the reason for the reversal, which will be included in the description of the compensating transaction
+   * @param reason - the reason for the reversal, which will be included in the description of the
+   *     compensating transaction
    * @return - a new Transaction object representing the compensating reversal
    */
   private Transaction buildCompensatingTransaction(Transaction original, String reason) {

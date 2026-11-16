@@ -5,11 +5,20 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 
+/**
+ * Output port for persisting and querying ledger transactions.
+ */
 public interface TransactionRepositoryPort {
+
   Single<Transaction> save(Transaction transaction);
+
   Flowable<Transaction> findAll();
+
   Maybe<Transaction> findById(String id);
+
   Maybe<Transaction> findByOperationNumber(String operationNumber);
+
   Flowable<Transaction> findByCustomerId(String customerId);
+
   Flowable<Transaction> findByTargetProductId(String targetProductId);
 }

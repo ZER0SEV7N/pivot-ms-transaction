@@ -22,20 +22,31 @@ public class RegisterTransactionUseCaseImpl implements RegisterTransactionUseCas
   private final TransactionRulesProperties rulesProperties;
 
   /**
-   * Registers a new transaction by delegating to the appropriate strategy based on the transaction type.
+   * Registers a new transaction by delegating to the appropriate strategy based on the transaction
+   * type.
    *
-   * @param transaction - The transaction object containing details such as type, customer ID, target product ID, and amount.
+   * @param transaction - The transaction object containing details such as type, customer ID,
+   *     target product ID, and amount.
    * @return - A Single emitting the saved Transaction object upon successful completion.
    */
   @Override
   public Single<Transaction> register(Transaction transaction) {
     log.debug("Registering transaction of type {} for customerId: {} and targetProductId: {}",
-            transaction.getTransactionType(), transaction.getCustomerId(), transaction.getTargetProductId());
+            transaction.getTransactionType(), transaction.getCustomerId(),
+            transaction.getTargetProductId());
 
-    // Delegate the transaction execution to the appropriate strategy based on the transaction type
+    // Delegate the transaction execution to the appropriate strategy based on the type
     return strategyRegistry.getStrategy(transaction.getTransactionType())
-            .execute(transaction, rulesProperties.getOperationPrefix(), rulesProperties.getDefaultFee())
-            .doOnSuccess(saved -> log.info("Transaction completed successfully. OperationNumber: {}, Type: {}, Amount: {}, NewBalance: {}",
-                    saved.getOperationNumber(), saved.getTransactionType(), saved.getAmount(), saved.getNewBalance()));
+            .execute(
+                    transaction,
+                    rulesProperties.getOperationPrefix(),
+                    rulesProperties.getDefaultFee())
+            .doOnSuccess(saved -> log.info(
+                    "Transaction completed successfully. OperationNumber: {}, Type: {}, "
+                            + "Amount: {}, NewBalance: {}",
+                    saved.getOperationNumber(),
+                    saved.getTransactionType(),
+                    saved.getAmount(),
+                    saved.getNewBalance()));
   }
 }

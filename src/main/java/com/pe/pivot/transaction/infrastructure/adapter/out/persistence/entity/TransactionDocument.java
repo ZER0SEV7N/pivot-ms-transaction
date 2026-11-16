@@ -1,12 +1,15 @@
 package com.pe.pivot.transaction.infrastructure.adapter.out.persistence.entity;
 
-import lombok.*;
+import java.math.BigDecimal;
+import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 /**
  * MongoDB Document representing an immutable financial ledger record in 'db_pivot_transaction'.

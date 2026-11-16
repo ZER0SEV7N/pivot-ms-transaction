@@ -20,7 +20,8 @@ public class FindTransactionByIdUseCaseImpl implements FindTransactionByIdUseCas
   private final TransactionRepositoryPort transactionRepository;
 
   /**
-   * Finds a transaction by its unique identifier. If the transaction is not found, it returns an error.
+   * Finds a transaction by its unique identifier. If the transaction is not found, it returns an
+   * error.
    *
    * @param id - The unique identifier of the transaction to be retrieved.
    * @return - A Single emitting the found Transaction or an error if not found.
@@ -28,6 +29,8 @@ public class FindTransactionByIdUseCaseImpl implements FindTransactionByIdUseCas
   @Override
   public Single<Transaction> findById(String id) {
     log.debug("Searching transaction by ID: {}", id);
-    return transactionRepository.findById(id).switchIfEmpty(Single.error(new TransactionNotFoundException("Transaction not found with ID: " + id)));
+    return transactionRepository.findById(id)
+            .switchIfEmpty(Single.error(new TransactionNotFoundException(
+                    "Transaction not found with ID: " + id)));
   }
 }

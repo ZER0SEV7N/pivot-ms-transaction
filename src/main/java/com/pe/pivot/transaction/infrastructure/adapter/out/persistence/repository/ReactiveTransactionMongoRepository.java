@@ -10,7 +10,8 @@ import reactor.core.publisher.Mono;
  * Spring Data Reactive MongoDB repository using strictly derived query methods (zero @Query).
  */
 @Repository
-public interface ReactiveTransactionMongoRepository extends ReactiveMongoRepository<TransactionDocument, String> {
+public interface ReactiveTransactionMongoRepository
+    extends ReactiveMongoRepository<TransactionDocument, String> {
 
   Mono<TransactionDocument> findByOperationNumber(String operationNumber);
 

@@ -4,7 +4,6 @@ import com.pe.pivot.transaction.domain.model.ProductReportSummary;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
-
 import java.time.Instant;
 
 /**
@@ -12,7 +11,8 @@ import java.time.Instant;
  */
 public interface GenerateTransactionReportUseCase {
 
-  Single<ProductReportSummary> generateProductReport(String productId, Instant startDate, Instant endDate);
+  Single<ProductReportSummary> generateProductReport(
+      String productId, Instant startDate, Instant endDate);
 
   Flowable<Transaction> getLastTenCardMovements(String cardId);
 }

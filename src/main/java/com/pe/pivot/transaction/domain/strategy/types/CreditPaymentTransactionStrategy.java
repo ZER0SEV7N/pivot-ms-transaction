@@ -35,7 +35,8 @@ public class CreditPaymentTransactionStrategy extends AbstractTransactionStrateg
   }
 
   /**
-   * Executes the remote balance update for a CREDIT_PAYMENT transaction by calling the ms-credit service.
+   * Executes the remote balance update for a CREDIT_PAYMENT transaction by calling the ms-credit
+   * service.
    *
    * @param transaction - the transaction for which the balance needs to be updated
    * @return - a Single emitting the ProductBalanceSnapshot after the balance update

@@ -1,8 +1,7 @@
 package com.pe.pivot.transaction.infrastructure.adapter.out.client.dto;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
+import lombok.Builder;
 
 /**
  * Immutable payload sent to PATCH /{id}/balance on ms-account or ms-credit.

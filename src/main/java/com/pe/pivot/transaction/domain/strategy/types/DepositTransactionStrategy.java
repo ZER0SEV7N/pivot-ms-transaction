@@ -10,18 +10,22 @@ import com.pe.pivot.transaction.domain.strategy.AbstractTransactionStrategy;
 import io.reactivex.rxjava3.core.Single;
 
 /**
- * Concrete Strategy for executing bank account DEPOSIT transactions against ms-account (:8082)
+ * Concrete Strategy for executing bank account DEPOSIT transactions against ms-account (:8082).
  */
 public class DepositTransactionStrategy extends AbstractTransactionStrategy {
   private final AccountClientPort accountClient;
 
-  public DepositTransactionStrategy(CustomerClientPort customerClient, TransactionRepositoryPort transactionRepository, AccountClientPort accountClient) {
+  public DepositTransactionStrategy(
+      CustomerClientPort customerClient,
+      TransactionRepositoryPort transactionRepository,
+      AccountClientPort accountClient) {
     super(customerClient, transactionRepository);
     this.accountClient = accountClient;
   }
 
   /**
    * Returns the TransactionType that this strategy supports (DEPOSIT).
+   *
    * @return TransactionType.DEPOSIT
    */
   @Override
@@ -30,7 +34,8 @@ public class DepositTransactionStrategy extends AbstractTransactionStrategy {
   }
 
   /**
-   * Executes the remote balance update for a DEPOSIT transaction by calling the AccountClientPort to update the account balance.
+   * Executes the remote balance update for a DEPOSIT transaction by calling the AccountClientPort
+   * to update the account balance.
    *
    * @param transaction - the transaction for which the balance needs to be updated
    * @return - a Single emitting the ProductBalanceSnapshot after the balance update

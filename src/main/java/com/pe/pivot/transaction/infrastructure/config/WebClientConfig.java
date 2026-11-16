@@ -21,6 +21,11 @@ public class WebClientConfig {
   @Value("${application.clients.credit-service.url:http://localhost:8083/api/v1/credits}")
   private String creditServiceUrl;
 
+  /**
+   * Creates the WebClient used to communicate with ms-customer.
+   *
+   * @return a configured WebClient for ms-customer
+   */
   @Bean
   public WebClient customerWebClient() {
     return WebClient.builder()
@@ -28,6 +33,11 @@ public class WebClientConfig {
             .build();
   }
 
+  /**
+   * Creates the WebClient used to communicate with ms-account.
+   *
+   * @return a configured WebClient for ms-account
+   */
   @Bean
   public WebClient accountWebClient() {
     return WebClient.builder()
@@ -35,6 +45,11 @@ public class WebClientConfig {
             .build();
   }
 
+  /**
+   * Creates the WebClient used to communicate with ms-credit.
+   *
+   * @return a configured WebClient for ms-credit
+   */
   @Bean
   public WebClient creditWebClient() {
     return WebClient.builder()

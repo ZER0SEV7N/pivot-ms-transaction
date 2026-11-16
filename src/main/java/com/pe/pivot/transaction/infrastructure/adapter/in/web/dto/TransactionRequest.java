@@ -4,9 +4,8 @@ import com.pe.pivot.transaction.domain.model.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Builder;
-
 import java.math.BigDecimal;
+import lombok.Builder;
 
 /**
  * Immutable Request DTO using Java 17 Record for registering a financial transaction.
@@ -19,7 +18,9 @@ public record TransactionRequest(
         @NotBlank(message = "targetProductId is required (Account ID or Credit ID)")
         String targetProductId,
 
-        @NotNull(message = "transactionType is required (DEPOSIT, WITHDRAWAL, CREDIT_PAYMENT, CREDIT_CONSUMPTION)")
+        @NotNull(
+                message = "transactionType is required "
+                        + "(DEPOSIT, WITHDRAWAL, CREDIT_PAYMENT, CREDIT_CONSUMPTION)")
         TransactionType transactionType,
 
         @NotBlank(message = "currency is required")

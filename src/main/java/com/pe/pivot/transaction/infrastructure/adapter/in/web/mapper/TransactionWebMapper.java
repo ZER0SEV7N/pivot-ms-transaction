@@ -7,10 +7,9 @@ import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.ProductReportR
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransactionRequest;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransactionResponse;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransferRequest;
-import org.springframework.stereotype.Component;
-
 import java.util.Collections;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 /**
  * Web Mapper converting between immutable Record DTOs and Domain Transaction.
@@ -81,18 +80,20 @@ public class TransactionWebMapper {
   }
 
   /**
-   * Maps a ProductReportSummary domain object to a ProductReportResponse DTO, including mapping the list of Transaction movements.
+   * Maps a ProductReportSummary domain object to a ProductReportResponse DTO, including mapping
+   * the list of Transaction movements.
    *
-   * @param summary - The ProductReportSummary domain object containing the aggregated report data and transaction movements.
-   * @return - A ProductReportResponse DTO constructed from the summary, with mapped transaction movements.
+   * @param summary - The ProductReportSummary domain object containing the aggregated report data
+   *     and transaction movements.
+   * @return - A ProductReportResponse DTO constructed from the summary, with mapped movements.
    */
   public ProductReportResponse toReportResponse(ProductReportSummary summary) {
-    // Map the list of Transaction movements to TransactionResponse DTOs, handling null cases by returning an empty list.
+    // Map the Transaction movements to DTOs, handling null cases with an empty list.
     List<TransactionResponse> mappedMovements = summary.getMovements() == null
             ? Collections.emptyList()
             : summary.getMovements().stream().map(this::toResponse).toList();
 
-    // Construct and return a ProductReportResponse DTO with the aggregated report data and the mapped transaction movements.
+    // Construct the ProductReportResponse with the aggregated data and mapped movements.
     return ProductReportResponse.builder()
             .productId(summary.getProductId())
             .maskedProductNumber(summary.getMaskedProductNumber())

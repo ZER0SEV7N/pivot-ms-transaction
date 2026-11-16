@@ -1,14 +1,13 @@
 package com.pe.pivot.transaction.domain.model;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
 
 /**
  * Domain model representing a consolidated financial product report over a date range.

@@ -1,8 +1,7 @@
 package com.pe.pivot.transaction.infrastructure.adapter.in.web.dto;
 
-import lombok.Builder;
-
 import java.time.Instant;
+import lombok.Builder;
 
 /**
  * Standardized API error response structure.

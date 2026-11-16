@@ -61,7 +61,8 @@ public class RetrieveTransactionUseCaseImpl implements RetrieveTransactionUseCas
   /**
    * Retrieves all financial transactions associated with a specific customer ID.
    *
-   * @param customerId - The unique identifier of the customer whose transactions are to be retrieved.
+   * @param customerId - The unique identifier of the customer whose transactions are to be
+   *     retrieved.
    * @return - A Flowable stream of Transaction objects associated with the specified customer ID.
    */
   @Override
@@ -73,8 +74,10 @@ public class RetrieveTransactionUseCaseImpl implements RetrieveTransactionUseCas
   /**
    * Retrieves all financial transactions associated with a specific target product ID.
    *
-   * @param targetProductId - The unique identifier of the target product whose transactions are to be retrieved.
-   * @return - A Flowable stream of Transaction objects associated with the specified target product ID.
+   * @param targetProductId - The unique identifier of the target product whose transactions are to
+   *     be retrieved.
+   * @return - A Flowable stream of Transaction objects associated with the specified target product
+   *     ID.
    */
   @Override
   public Flowable<Transaction> findByTargetProductId(String targetProductId) {

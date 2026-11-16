@@ -16,7 +16,10 @@ public class CreditConsumptionTransactionStrategy extends AbstractTransactionStr
 
   private final CreditClientPort creditClient;
 
-  public CreditConsumptionTransactionStrategy(CustomerClientPort customerClient, TransactionRepositoryPort transactionRepository, CreditClientPort creditClient) {
+  public CreditConsumptionTransactionStrategy(
+      CustomerClientPort customerClient,
+      TransactionRepositoryPort transactionRepository,
+      CreditClientPort creditClient) {
     super(customerClient, transactionRepository);
     this.creditClient = creditClient;
   }
@@ -32,7 +35,8 @@ public class CreditConsumptionTransactionStrategy extends AbstractTransactionStr
   }
 
   /**
-   * Executes the remote balance update for a CREDIT_CONSUMPTION transaction by calling the ms-credit service.
+   * Executes the remote balance update for a CREDIT_CONSUMPTION transaction by calling the
+   * ms-credit service.
    *
    * @param transaction - the transaction for which the balance needs to be updated
    * @return - a Single emitting the ProductBalanceSnapshot after the balance update
