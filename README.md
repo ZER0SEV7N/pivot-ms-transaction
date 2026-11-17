@@ -1,52 +1,62 @@
 # Pivot Banking System - Transaction Microservice (`pivot-ms-transaction`)
 
 ## Overview
-Reactive microservice acting as the **Immutable Financial Ledger and Transaction Orchestrator** of the Pivot Banking System. It validates customer status against `ms-customer` (`:8081`), executes real-time balance updates on passive accounts in `ms-account` (`:8082`) and active credit products in `ms-credit` (`:8083`), records immutable audit trails (`previousBalance`, `newBalance`, `operationNumber`), and handles accounting reversals via compensating entries.
+Reactive microservice managing the **Immutable Financial Ledger**. It orchestrates account **Deposits** (`DEPOSIT`), **Withdrawals** (`WITHDRAWAL`), **Credit Payments** (`CREDIT_PAYMENT`), **Credit Card Consumptions** (`CREDIT_CONSUMPTION`), **Inter-Account Bank Transfers** (`TRANSFER_OUT` / `TRANSFER_IN`) with compensating rollbacks, **Compensating Reversals**, **Time-Interval Product Reports**, and **Last 10 Card Movements Reports** using **Java Streams** and **RxJava 3**.
 
-## Architecture, Design Patterns & Security
-- **Architectural Style:** Hexagonal Architecture (Ports and Adapters) with strict separation of `domain`, `application`, and `infrastructure` layers.
-- **Reactive Stack:** Spring Boot 4 + Spring WebFlux (Netty) + **RxJava 3** (`Single`, `Maybe`, `Flowable`, `Completable`).
-- **SOLID & Design Patterns (Zero God Classes / Zero Spaghetti Code):**
-  - **Single Responsibility Principle (SRP):** Dedicated Use Case implementations (`RegisterTransactionUseCaseImpl`, `ReverseTransactionUseCaseImpl`, `FindTransactionByIdUseCaseImpl`, `RetrieveTransactionUseCaseImpl`).
-  - **Template Method Pattern (`AbstractTransactionStrategy`):** Encapsulates the invariant transaction lifecycle (active customer verification in `ms-customer`, remote balance execution, operation number generation, and ledger persistence) while delegating product-specific HTTP calls to concrete subclasses.
-  - **Strategy Pattern (`TransactionExecutionStrategy`):** Four low-complexity concrete strategies (`DepositTransactionStrategy`, `WithdrawalTransactionStrategy`, `CreditPaymentTransactionStrategy`, `CreditConsumptionTransactionStrategy`).
-  - **Factory / Registry Pattern (`TransactionStrategyRegistry`):** Provides $O(1)$ `EnumMap` lookup of transaction strategies at runtime without `switch` or `if-else` chains.
-  - **Rich Enum & Compensating Action Pattern (`TransactionType`):** Self-contains product routing metadata and resolves its own inverse compensating operation (`DEPOSIT <-> WITHDRAWAL`, `CREDIT_PAYMENT <-> CREDIT_CONSUMPTION`) for transaction reversals.
-  - **Immutable DTOs:** Java 17 `record` types across all web and client payloads.
-- **Banking-Grade Security & Accounting Integrity:**
-  - **Immutable Ledger Principle:** Financial transactions are never modified (`PUT`) or deleted (`DELETE`). Corrections are strictly performed via **Compensating Reversals (`POST /transactions/{id}/reverse`)**, which execute the inverse financial operation, mark the original entry as `REVERSED`, and persist a linked reversal record (`referenceTransactionId`).
-  - **Masked Product Numbers:** Stores and returns only the masked account or card number (`************0-01` / `************5678`) received from downstream microservices.
+## Architecture, Design Patterns & Quality Gates
+- **Architectural Style:** Hexagonal Architecture (Ports and Adapters) separating `domain`, `application`, and `infrastructure` layers.
+- **Reactive Stack:** Java 17 + Spring Boot 4.1.2 + Spring WebFlux (Netty) + **RxJava 3** (`Single`, `Maybe`, `Flowable`, `Completable`) + Netflix Eureka Client + **Resilience4j**.
+- **SOLID & Design Patterns (Zero God Classes):**
+  - **Single Responsibility Principle (SRP):** Dedicated reactive use cases (`RegisterTransactionUseCaseImpl`, `TransferFundsUseCaseImpl`, `GenerateTransactionReportUseCaseImpl`, `ReverseTransactionUseCaseImpl`, `RetrieveTransactionUseCaseImpl`, `FindTransactionByIdUseCaseImpl`).
+  - **Template Method + Strategy + Registry Pattern:** `AbstractTransactionStrategy`, `TransactionStrategyRegistry` ($O(1)$ lookup via `EnumMap`), and concrete strategies in `domain/strategy/types/` (`DepositTransactionStrategy`, `WithdrawalTransactionStrategy`, `CreditPaymentTransactionStrategy`, `CreditConsumptionTransactionStrategy`).
+  - **Domain Enricher & Stream Report Builder (`application/support/`):**
+    - `TransactionDomainEnricher`: Constructs linked `TRANSFER_OUT` and `TRANSFER_IN` ledger entries capturing automatic commissions (`appliedCommission`) charged by `ms-account`.
+    - `TransactionReportBuilder`: Leverages **Java Streams** (`filter`, `sorted`, `limit(10)`, `map`, `reduce`) to aggregate date-range product reports and the 10 most recent card movements.
+  - **Compensating Saga Pattern:** `TransferFundsUseCaseImpl` automatically refunds the source account if crediting the destination account fails or violates currency consistency (`PEN` vs `USD`).
+  - **Circuit Breaker Pattern (`Resilience4j`):** Protects outbound calls to `ms-customer`, `ms-account`, and `ms-credit` with a strict **2-second timeout**.
+- **Code Quality & Testing:**
+  - **Google Java Style (`maven-checkstyle-plugin`):** Enforced during Maven `validate` phase.
+  - **Unit Testing (`JUnit 5` + `Mockito` + `RxJava 3 TestObserver` + `StepVerifier`):** AAA pattern and FIRST principles achieving **>90% code coverage** in **JaCoCo** and **SonarQube**.
 
 ## API Endpoints (`/api/v1/transactions`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/v1/transactions` | Register and execute a financial transaction (`DEPOSIT`, `WITHDRAWAL`, `CREDIT_PAYMENT`, `CREDIT_CONSUMPTION`) |
-| `GET` | `/api/v1/transactions` | Retrieve all financial transactions |
-| `GET` | `/api/v1/transactions/{id}` | Retrieve transaction by unique MongoDB ID |
-| `GET` | `/api/v1/transactions/operation/{operationNumber}` | Retrieve transaction by unique banking operation code (`OP-YYYYMMDD-XXXXXXXX`) |
-| `GET` | `/api/v1/transactions/customer/{customerId}` | Retrieve all transactions executed by a specific customer |
-| `GET` | `/api/v1/transactions/product/{targetProductId}` | Retrieve all movements of a specific Bank Account or Credit Product[cite: 2] |
-| `POST` | `/api/v1/transactions/{id}/reverse` | Execute a compensating reversal on a `COMPLETED` transaction |
+| `POST` | `/api/v1/transactions` | Execute a `DEPOSIT`, `WITHDRAWAL`, `CREDIT_PAYMENT`, or `CREDIT_CONSUMPTION` |
+| `POST` | `/api/v1/transactions/transfer` | Execute a bank transfer between accounts (same customer or third-party) |
+| `GET` | `/api/v1/transactions` | Retrieve all ledger transactions |
+| `GET` | `/api/v1/transactions/{id}` | Retrieve transaction by ID |
+| `GET` | `/api/v1/transactions/operation/{operationNumber}` | Retrieve transaction by unique operation number (`OP-YYYYMMDD-XXXXXXXX`) |
+| `GET` | `/api/v1/transactions/customer/{customerId}` | Retrieve all transactions executed by a customer |
+| `GET` | `/api/v1/transactions/product/{targetProductId}` | Retrieve all movements of a specific bank account or credit product |
+| `GET` | `/api/v1/transactions/reports/product/{productId}` | Generate a general product report within `[startDate, endDate]` (`Java Streams`) |
+| `GET` | `/api/v1/transactions/reports/card/{cardId}/last-movements` | Retrieve the **last 10 movements** of a card or product (`Java Streams`) |
+| `POST` | `/api/v1/transactions/{id}/reverse` | Execute a compensating ledger reversal (marks original as `REVERSED`) |
 
-## Inter-Service Communication
-- **`pivot-ms-config` (`:8888`):** Fetches externalized configuration, downstream service URLs, and transaction rules (`TransactionRulesProperties`).
-- **`pivot-ms-customer` (`:8081`):** Consumed via non-blocking `WebClient` (`GET /api/v1/customers/{id}`) to verify customer existence and `ACTIVE` status prior to any transaction.
-- **`pivot-ms-account` (`:8082`):** Consumed via non-blocking `WebClient` (`PATCH /api/v1/accounts/{id}/balance`) to process `DEPOSIT` and `WITHDRAWAL` operations.
-- **`pivot-ms-credit` (`:8083`):** Consumed via non-blocking `WebClient` (`PATCH /api/v1/credits/{id}/balance`) to process `PAYMENT` and `CONSUMPTION` operations.
+## Inter-Service Communication & Observability
+- **`pivot-ms-config` (`:8888`):** Fetches externalized rules (`TransactionRulesProperties`).
+- **`pivot-ms-eureka` (`:8761`):** Registers service instance as `MS-TRANSACTION`.
+- **`pivot-ms-customer` (`:8081`):** Verifies active customer status via `WebClient` + `Resilience4j` (2s timeout).
+- **`pivot-ms-account` (`:8082`):** Updates account balances and retrieves applied commissions via `WebClient` + `Resilience4j` (2s timeout).
+- **`pivot-ms-credit` (`:8083`):** Updates credit balances via `WebClient` + `Resilience4j` (2s timeout).
+- **Observability:** Structured logs with `X-Correlation-Id` exported to **Promtail -> Loki -> Grafana (`:3000`)**.
 
 ## Database (Database per Service Pattern)
-- **Engine:** MongoDB 7 (Reactive Spring Data MongoDB using derived query methods, zero `@Query`).
+- **Engine:** MongoDB 7.0 (Reactive Spring Data MongoDB using derived query methods, zero `@Query`).
 - **Database Name:** `db_pivot_transaction`
-- **Collection:** `transactions` (with unique index on `operationNumber`, and indexes on `customerId` and `targetProductId`).
+- **Collection:** `transactions`
 
-## How to Run
-1. Ensure the MongoDB container (`:27017`), `ms-config` (`:8888`), `ms-customer` (`:8081`), `ms-account` (`:8082`), and `ms-credit` (`:8083`) are running.
-2. Start the microservice:
-```powershell
-   mvn clean spring-boot:run
-```
-
-3. The service will start on port **`8084`**.
-4. **API Testing:** Import **`pivot-ms-transaction.postman_collection.json`** into Postman to run all end-to-end test scenarios.
-
----
+## How to Run (Local & Docker)
+1. Ensure MongoDB (`:27017`), `ms-config` (`:8888`), `ms-eureka` (`:8761`), `ms-customer` (`:8081`), `ms-account` (`:8082`), and `ms-credit` (`:8083`) are running.
+2. Run unit tests, Checkstyle, and generate the JaCoCo coverage report:
+   ```powershell
+   mvn clean test checkstyle:check jacoco:report
+   ```
+3. Start the microservice locally:
+   ```powershell
+   mvn spring-boot:run
+   ```
+4. Build and run as an independent Docker container:
+   ```powershell
+   docker build -t pivot-ms-transaction:2.0.0 .
+   docker run -d -p 8084:8084 --name pivot-ms-transaction pivot-ms-transaction:2.0.0
+   ```

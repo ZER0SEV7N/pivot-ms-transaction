@@ -41,7 +41,7 @@ class TransactionTest {
 
   @Test
   @DisplayName("Should not be reversible when the transaction is a compensating entry")
-  void shouldNotBeReversibleWhenItIsACompensatingEntry() {
+  void shouldNotBeReversibleWhenItIsCompensating() {
     // Arrange
     Transaction transaction = Transaction.builder()
             .status(TransactionStatus.COMPLETED)

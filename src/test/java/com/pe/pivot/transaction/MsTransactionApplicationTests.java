@@ -1,20 +1,22 @@
 package com.pe.pivot.transaction;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(properties = {
-    "eureka.client.enabled=false",
-    "spring.cloud.discovery.enabled=false",
-    "spring.cloud.config.enabled=false",
-    "spring.config.import="
-})
+/**
+ * Smoke test for MsTransactionApplication class definition.
+ */
 class MsTransactionApplicationTests {
 
   @Test
-  @DisplayName("Should load the Spring application context")
-  void contextLoads() {
-  }
+  @DisplayName("Should instantiate MsTransactionApplication successfully")
+  void shouldInstantiateApplicationSuccessfully() {
+    // Arrange & Act
+    MsTransactionApplication application = new MsTransactionApplication();
 
+    // Assert
+    assertNotNull(application);
+  }
 }

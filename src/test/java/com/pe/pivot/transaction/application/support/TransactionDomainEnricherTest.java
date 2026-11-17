@@ -18,6 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/**
+ * Unit tests for the {@link TransactionDomainEnricher} class.
+ */
 @ExtendWith(MockitoExtension.class)
 class TransactionDomainEnricherTest {
 
@@ -80,6 +83,8 @@ class TransactionDomainEnricherTest {
   void shouldBuildTransferInEntryWithFallbacks() {
     // Arrange
     when(rules.getOperationPrefix()).thenReturn("OP-");
+
+    // Create a TransferCommand with null currency and description to test fallback behavior
     TransferCommand command = TransferCommand.builder()
             .customerId("cust-1")
             .sourceAccountId("acc-src")
@@ -124,13 +129,18 @@ class TransactionDomainEnricherTest {
 
     // Act
     Transaction result = enricher.buildTransferEntry(
-            command, "acc-src", TransactionType.TRANSFER_OUT, TestDataSnapshot(), null);
+            command, "acc-src", TransactionType.TRANSFER_OUT, testDataSnapshot(), null);
 
     // Assert
     assertThat(result.getDescription()).isEqualTo("Bank transfer sent to account acc-dst");
   }
 
-  private static ProductBalanceSnapshot TestDataSnapshot() {
+  /**
+   * Creates a test ProductBalanceSnapshot with predefined values for testing purposes.
+   *
+   * @return a ProductBalanceSnapshot instance with test data
+   */
+  private static ProductBalanceSnapshot testDataSnapshot() {
     return ProductBalanceSnapshot.builder()
             .maskedProductNumber("****1111")
             .currency("PEN")

@@ -154,7 +154,7 @@ class ReverseTransactionUseCaseImplTest {
 
   @Test
   @DisplayName("Should reject a reversal when the transaction is itself a compensating entry")
-  void shouldRejectWhenItIsACompensatingEntry() {
+  void shouldRejectCompensatingEntry() {
     // Arrange
     Transaction original = TestData.transaction("tx-1", TransactionType.DEPOSIT);
     original.setReferenceTransactionId("original-tx");

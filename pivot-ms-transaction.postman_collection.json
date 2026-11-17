@@ -1,348 +1,187 @@
 {
   "info": {
-    "_postman_id": "f4a5b6c7-d8e9-4f0a-8b1c-2d3e4f5a6b7c",
-    "name": "Pivot Banking - ms-transaction",
-    "description": "End-to-End Postman Collection for pivot-ms-transaction (Immutable Financial Ledger: Account Deposits/Withdrawals, Credit Payments/Consumptions, Compensating Reversals, and History Lookups).",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+    "name": "Pivot Banking - ms-transaction (Phase II)",
+    "description": "Complete Postman Collection for pivot-ms-transaction covering Deposits, Withdrawals (with automatic commission capture), Credit Payments, Credit Consumptions, Inter-Account Bank Transfers, Compensating Reversals, Date-Range Product Reports, and Last 10 Card Movements.",
+    "schema": "[https://schema.getpostman.com/json/collection/v2.1.0/collection.json](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)"
   },
   "item": [
     {
-      "name": "1. Execute Account DEPOSIT (POST /transactions - 201 Created)",
+      "name": "1. Register Account Deposit (201 Created)",
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status code is 201 Created\", function () {",
               "    pm.response.to.have.status(201);",
               "});",
               "var jsonData = pm.response.json();",
               "if (jsonData.id) {",
-              "    pm.collectionVariables.set(\"depositTxId\", jsonData.id);",
-              "    pm.collectionVariables.set(\"depositOpNumber\", jsonData.operationNumber);",
+              "    pm.collectionVariables.set(\"transactionId\", jsonData.id);",
+              "    pm.collectionVariables.set(\"operationNumber\", jsonData.operationNumber);",
               "}"
-            ],
-            "type": "text/javascript"
+            ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{savingsAccountId}}\",\n  \"transactionType\": \"DEPOSIT\",\n  \"currency\": \"PEN\",\n  \"amount\": 300.00,\n  \"description\": \"Ventanilla Cash Deposit - Agencia San Isidro\"\n}"
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{sourceAccountId}}\",\n  \"transactionType\": \"DEPOSIT\",\n  \"currency\": \"PEN\",\n  \"amount\": 300.00,\n  \"description\": \"Initial salary deposit\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions"
-          ]
+          "host": ["{{urlMsTransaction}}"],
+          "path": ["transactions"]
         }
       }
     },
     {
-      "name": "2. Execute Account WITHDRAWAL (POST /transactions - 201 Created)",
+      "name": "2. Execute Inter-Account Bank Transfer (Phase II - POST /transactions/transfer)",
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 201 Created\", function () {",
+              "pm.test(\"Status code is 201 Created and type is TRANSFER_OUT\", function () {",
               "    pm.response.to.have.status(201);",
-              "});",
-              "var jsonData = pm.response.json();",
-              "if (jsonData.id) {",
-              "    pm.collectionVariables.set(\"withdrawalTxId\", jsonData.id);",
-              "}"
-            ],
-            "type": "text/javascript"
+              "    pm.expect(pm.response.json().transactionType).to.eql(\"TRANSFER_OUT\");",
+              "});"
+            ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{savingsAccountId}}\",\n  \"transactionType\": \"WITHDRAWAL\",\n  \"currency\": \"PEN\",\n  \"amount\": 100.00,\n  \"description\": \"ATM Withdrawal - Miraflores\"\n}"
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"sourceAccountId\": \"{{sourceAccountId}}\",\n  \"destinationAccountId\": \"{{destinationAccountId}}\",\n  \"currency\": \"PEN\",\n  \"amount\": 120.00,\n  \"description\": \"Phase II transfer between bank accounts\"\n}"
         },
         "url": {
-          "raw": "{{urlMsTransaction}}/transactions",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions"
-          ]
+          "raw": "{{urlMsTransaction}}/transactions/transfer",
+          "host": ["{{urlMsTransaction}}"],
+          "path": ["transactions", "transfer"]
         }
       }
     },
     {
-      "name": "3. [Error 400] Account Withdrawal Exceeding Available Balance",
+      "name": "3. Register Credit Card Consumption (201 Created)",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{savingsAccountId}}\",\n  \"transactionType\": \"WITHDRAWAL\",\n  \"currency\": \"PEN\",\n  \"amount\": 999999.00,\n  \"description\": \"Attempted Overdraft Withdrawal\"\n}"
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_CONSUMPTION\",\n  \"currency\": \"PEN\",\n  \"amount\": 250.00,\n  \"description\": \"Online electronics purchase\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions"
-          ]
+          "host": ["{{urlMsTransaction}}"],
+          "path": ["transactions"]
         }
       }
     },
     {
-      "name": "4. Execute Credit Card CONSUMPTION (POST /transactions - 201 Created)",
+      "name": "4. Register Credit Card Payment (201 Created)",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_CONSUMPTION\",\n  \"currency\": \"PEN\",\n  \"amount\": 450.00,\n  \"description\": \"POS Purchase - Electronics Store\"\n}"
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_PAYMENT\",\n  \"currency\": \"PEN\",\n  \"amount\": 100.00,\n  \"description\": \"Partial monthly credit card payment\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions"
-          ]
+          "host": ["{{urlMsTransaction}}"],
+          "path": ["transactions"]
         }
       }
     },
     {
-      "name": "5. Execute Credit Card PAYMENT (POST /transactions - 201 Created)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
+      "name": "5. [Report #1] Generate Product Report by Date Interval (Phase II - Java Streams)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK and report contains movements\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json()).to.have.property(\"totalFeesCollected\");",
+              "});"
+            ]
           }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"customerId\": \"{{personalCustomerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_PAYMENT\",\n  \"currency\": \"PEN\",\n  \"amount\": 200.00,\n  \"description\": \"Monthly Credit Card Installment Payment\"\n}"
-        },
-        "url": {
-          "raw": "{{urlMsTransaction}}/transactions",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions"
-          ]
         }
-      }
-    },
-    {
-      "name": "6. Retrieve All Transactions (GET /transactions)",
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{urlMsTransaction}}/transactions",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions"
+          "raw": "{{urlMsTransaction}}/transactions/reports/product/{{sourceAccountId}}?startDate=2025-01-01T00:00:00Z&endDate=2027-12-31T23:59:59Z",
+          "host": ["{{urlMsTransaction}}"],
+          "path": ["transactions", "reports", "product", "{{sourceAccountId}}"],
+          "query": [
+            { "key": "startDate", "value": "2025-01-01T00:00:00Z" },
+            { "key": "endDate", "value": "2027-12-31T23:59:59Z" }
           ]
         }
       }
     },
     {
-      "name": "7. Get Transaction by ID (GET /transactions/{id})",
+      "name": "6. [Report #2] Get Last 10 Movements of Credit Card (Phase II - Java Streams)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK and max 10 items returned\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().length).to.be.at.most(10);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{urlMsTransaction}}/transactions/{{depositTxId}}",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions",
-            "{{depositTxId}}"
-          ]
+          "raw": "{{urlMsTransaction}}/transactions/reports/card/{{creditCardId}}/last-movements",
+          "host": ["{{urlMsTransaction}}"],
+          "path": ["transactions", "reports", "card", "{{creditCardId}}", "last-movements"]
         }
       }
     },
     {
-      "name": "8. Get Transaction by Operation Number (GET /transactions/operation/{opNumber})",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{urlMsTransaction}}/transactions/operation/{{depositOpNumber}}",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions",
-            "operation",
-            "{{depositOpNumber}}"
-          ]
-        }
-      }
-    },
-    {
-      "name": "9. Get All Transactions by Customer ID (GET /transactions/customer/{customerId})",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{urlMsTransaction}}/transactions/customer/{{personalCustomerId}}",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions",
-            "customer",
-            "{{personalCustomerId}}"
-          ]
-        }
-      }
-    },
-    {
-      "name": "10. Get All Movements of a Specific Product (GET /transactions/product/{targetProductId})",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{urlMsTransaction}}/transactions/product/{{savingsAccountId}}",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions",
-            "product",
-            "{{savingsAccountId}}"
-          ]
-        }
-      }
-    },
-    {
-      "name": "11. Execute Compensating Reversal on Withdrawal (POST /transactions/{id}/reverse)",
+      "name": "7. Reverse Transaction (Compensating Ledger Entry - POST /transactions/{id}/reverse)",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"reason\": \"ATM cash dispenser error - returning funds to customer account\"\n}"
+          "raw": "{\n  \"reason\": \"Customer requested reversal of duplicate deposit\"\n}"
         },
         "url": {
-          "raw": "{{urlMsTransaction}}/transactions/{{withdrawalTxId}}/reverse",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions",
-            "{{withdrawalTxId}}",
-            "reverse"
-          ]
-        }
-      }
-    },
-    {
-      "name": "12. [Error 400] Try to Reverse an Already REVERSED Transaction",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"reason\": \"Duplicate reversal attempt\"\n}"
-        },
-        "url": {
-          "raw": "{{urlMsTransaction}}/transactions/{{withdrawalTxId}}/reverse",
-          "host": [
-            "{{urlMsTransaction}}"
-          ],
-          "path": [
-            "transactions",
-            "{{withdrawalTxId}}",
-            "reverse"
-          ]
+          "raw": "{{urlMsTransaction}}/transactions/{{transactionId}}/reverse",
+          "host": ["{{urlMsTransaction}}"],
+          "path": ["transactions", "{{transactionId}}", "reverse"]
         }
       }
     }
   ],
   "variable": [
-    {
-      "key": "urlMsTransaction",
-      "value": "http://localhost:8084/api/v1",
-      "type": "string"
-    },
-    {
-      "key": "personalCustomerId",
-      "value": "PASTE_YOUR_PERSONAL_CUSTOMER_ID_HERE",
-      "type": "string"
-    },
-    {
-      "key": "savingsAccountId",
-      "value": "PASTE_YOUR_SAVINGS_ACCOUNT_ID_HERE",
-      "type": "string"
-    },
-    {
-      "key": "creditCardId",
-      "value": "PASTE_YOUR_CREDIT_CARD_ID_HERE",
-      "type": "string"
-    },
-    {
-      "key": "depositTxId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "depositOpNumber",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "withdrawalTxId",
-      "value": "",
-      "type": "string"
-    }
+    { "key": "urlMsTransaction", "value": "http://localhost:8084/api/v1", "type": "string" },
+    { "key": "customerId", "value": "", "type": "string" },
+    { "key": "sourceAccountId", "value": "", "type": "string" },
+    { "key": "destinationAccountId", "value": "", "type": "string" },
+    { "key": "creditCardId", "value": "", "type": "string" },
+    { "key": "transactionId", "value": "", "type": "string" },
+    { "key": "operationNumber", "value": "", "type": "string" }
   ]
 }

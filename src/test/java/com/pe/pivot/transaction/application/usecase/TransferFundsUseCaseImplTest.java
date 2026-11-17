@@ -78,16 +78,16 @@ class TransferFundsUseCaseImplTest {
   @DisplayName("Should debit the source, credit the destination and persist both entries")
   void shouldTransferFunds() {
     // Arrange
-    Transaction transferOut = TestData.transaction("out-1", TransactionType.TRANSFER_OUT);
-    Transaction transferIn = TestData.transaction("in-1", TransactionType.TRANSFER_IN);
     stubActiveCustomer();
     when(accountClient.updateAccountBalance("acc-src", "WITHDRAWAL", command.getAmount()))
             .thenReturn(Single.just(sourceSnapshot));
     when(accountClient.updateAccountBalance("acc-dst", "DEPOSIT", command.getAmount()))
             .thenReturn(Single.just(destinationSnapshot));
+    Transaction transferOut = TestData.transaction("out-1", TransactionType.TRANSFER_OUT);
     when(transactionEnricher.buildTransferEntry(
             command, "acc-src", TransactionType.TRANSFER_OUT, sourceSnapshot, null))
             .thenReturn(transferOut);
+    Transaction transferIn = TestData.transaction("in-1", TransactionType.TRANSFER_IN);
     when(transactionEnricher.buildTransferEntry(
             command, "acc-dst", TransactionType.TRANSFER_IN, destinationSnapshot, "out-1"))
             .thenReturn(transferIn);
@@ -217,16 +217,16 @@ class TransferFundsUseCaseImplTest {
   @DisplayName("Should propagate a failure while persisting the transfer-in entry")
   void shouldPropagateTransferInPersistenceFailure() {
     // Arrange
-    Transaction transferOut = TestData.transaction("out-1", TransactionType.TRANSFER_OUT);
-    Transaction transferIn = TestData.transaction("in-1", TransactionType.TRANSFER_IN);
     stubActiveCustomer();
     when(accountClient.updateAccountBalance("acc-src", "WITHDRAWAL", command.getAmount()))
             .thenReturn(Single.just(sourceSnapshot));
     when(accountClient.updateAccountBalance("acc-dst", "DEPOSIT", command.getAmount()))
             .thenReturn(Single.just(destinationSnapshot));
+    Transaction transferOut = TestData.transaction("out-1", TransactionType.TRANSFER_OUT);
     when(transactionEnricher.buildTransferEntry(
             command, "acc-src", TransactionType.TRANSFER_OUT, sourceSnapshot, null))
             .thenReturn(transferOut);
+    Transaction transferIn = TestData.transaction("in-1", TransactionType.TRANSFER_IN);
     when(transactionEnricher.buildTransferEntry(
             command, "acc-dst", TransactionType.TRANSFER_IN, destinationSnapshot, "out-1"))
             .thenReturn(transferIn);

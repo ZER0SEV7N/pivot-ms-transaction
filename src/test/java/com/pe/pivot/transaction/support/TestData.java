@@ -20,6 +20,13 @@ public final class TestData {
   private TestData() {
   }
 
+  /**
+   * Builds a completed transaction with every field populated.
+   *
+   * @param id transaction identifier
+   * @param type transaction type that determines the product category
+   * @return a fully populated transaction
+   */
   public static Transaction transaction(String id, TransactionType type) {
     return Transaction.builder()
             .id(id)
@@ -41,6 +48,15 @@ public final class TestData {
             .build();
   }
 
+  /**
+   * Builds a bank-account transaction with the supplied timestamps and amounts.
+   *
+   * @param id transaction identifier
+   * @param createdAt creation timestamp used for ordering and report calculations
+   * @param amount transaction amount
+   * @param fee commission applied to the transaction
+   * @return a transaction ready for report and ordering assertions
+   */
   public static Transaction transactionAt(
           String id, Instant createdAt, BigDecimal amount, BigDecimal fee) {
     return Transaction.builder()
@@ -54,6 +70,12 @@ public final class TestData {
             .build();
   }
 
+  /**
+   * Builds a customer summary with the supplied status.
+   *
+   * @param status customer status such as ACTIVE or INACTIVE
+   * @return a customer summary projection
+   */
   public static CustomerSummary customer(String status) {
     return CustomerSummary.builder()
             .id("cust-1")
@@ -63,10 +85,20 @@ public final class TestData {
             .build();
   }
 
+  /**
+   * Builds an active customer summary.
+   *
+   * @return a customer summary whose status is ACTIVE
+   */
   public static CustomerSummary activeCustomer() {
     return customer("ACTIVE");
   }
 
+  /**
+   * Builds a product balance snapshot used by the remote client adapters.
+   *
+   * @return a bank-account balance snapshot
+   */
   public static ProductBalanceSnapshot snapshot() {
     return ProductBalanceSnapshot.builder()
             .productId("prod-1")
@@ -78,6 +110,11 @@ public final class TestData {
             .build();
   }
 
+  /**
+   * Builds a transfer command between two bank accounts.
+   *
+   * @return a transfer command ready to be executed
+   */
   public static TransferCommand transferCommand() {
     return TransferCommand.builder()
             .customerId("cust-1")
