@@ -3,13 +3,17 @@ package com.pe.pivot.transaction.infrastructure.config;
 import com.pe.pivot.transaction.domain.port.out.AccountClientPort;
 import com.pe.pivot.transaction.domain.port.out.CreditClientPort;
 import com.pe.pivot.transaction.domain.port.out.CustomerClientPort;
+import com.pe.pivot.transaction.domain.port.out.DebitCardClientPort;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
 import com.pe.pivot.transaction.domain.strategy.TransactionExecutionStrategy;
 import com.pe.pivot.transaction.domain.strategy.TransactionStrategyRegistry;
-import com.pe.pivot.transaction.domain.strategy.types.CreditConsumptionTransactionStrategy;
-import com.pe.pivot.transaction.domain.strategy.types.CreditPaymentTransactionStrategy;
-import com.pe.pivot.transaction.domain.strategy.types.DepositTransactionStrategy;
-import com.pe.pivot.transaction.domain.strategy.types.WithdrawalTransactionStrategy;
+import com.pe.pivot.transaction.domain.strategy.types.credit.CreditConsumptionTransactionStrategy;
+import com.pe.pivot.transaction.domain.strategy.types.credit.CreditPaymentTransactionStrategy;
+import com.pe.pivot.transaction.domain.strategy.types.debitcard.DebitCardPaymentTransactionStrategy;
+import com.pe.pivot.transaction.domain.strategy.types.debitcard.DebitCardWithdrawalTransactionStrategy;
+import com.pe.pivot.transaction.domain.strategy.types.debitcard.ThirdPartyCreditPaymentStrategy;
+import com.pe.pivot.transaction.domain.strategy.types.transaction.DepositTransactionStrategy;
+import com.pe.pivot.transaction.domain.strategy.types.transaction.WithdrawalTransactionStrategy;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -114,5 +118,68 @@ public class StrategyConfig {
   public TransactionStrategyRegistry transactionStrategyRegistry(
       List<TransactionExecutionStrategy> strategies) {
     return new TransactionStrategyRegistry(strategies);
+  }
+
+  /**
+   * Creates a DebitCardPaymentTransactionStrategy bean with the required dependencies.
+   * This Strategy rules:
+   *  - Validates that the customer is active.
+   *  - Updates the debit card balance by subtracting the payment amount.
+   *  - Creates a new transaction record.
+   *
+   * @param customerClient - the port for interacting with customer data
+   * @param transactionRepository - the port for interacting with transaction data
+   * @param debitCardClient - the port for interacting with debit card data
+   * @return - a configured instance of DebitCardPaymentTransactionStrategy
+   */
+  @Bean
+  public TransactionExecutionStrategy debitCardPaymentTransactionStrategy(
+          CustomerClientPort customerClient,
+          TransactionRepositoryPort transactionRepository,
+          DebitCardClientPort debitCardClient) {
+    return new DebitCardPaymentTransactionStrategy(
+            customerClient, transactionRepository, debitCardClient);
+  }
+
+  /**
+   * Creates a DebitCardWithdrawalTransactionStrategy bean with the required dependencies.
+   * This Strategy rules:
+   *  - Validates that the customer is active.
+   *  - Updates the debit card balance by adding the withdrawal amount.
+   *  - Creates a new transaction record.
+   *
+   * @param customerClient - the port for interacting with customer data
+   * @param transactionRepository - the port for interacting with transaction data
+   * @param debitCardClient - the port for interacting with debit card data
+   * @return - a configured instance of DebitCardWithdrawalTransactionStrategy
+   */
+  @Bean
+  public TransactionExecutionStrategy debitCardWithdrawalTransactionStrategy(
+          CustomerClientPort customerClient,
+          TransactionRepositoryPort transactionRepository,
+          DebitCardClientPort debitCardClient) {
+    return new DebitCardWithdrawalTransactionStrategy(
+            customerClient, transactionRepository, debitCardClient);
+  }
+
+  /**
+   * Creates a ThirdPartyCreditPaymentStrategy bean with the required dependencies.
+   * This Strategy rules:
+   *  - Validates that the customer is active.
+   *  - Updates the credit balance of a third-party product by subtracting the payment amount
+   *  - Creates a new transaction record.
+   *
+   * @param customerClient - the port for interacting with customer data
+   * @param transactionRepository - the port for interacting with transaction data
+   * @param creditClient - the port for interacting with credit product data
+   * @return - a configured instance of ThirdPartyCreditPaymentStrategy
+   */
+  @Bean
+  public TransactionExecutionStrategy thirdPartyCreditPaymentStrategy(
+          CustomerClientPort customerClient,
+          TransactionRepositoryPort transactionRepository,
+          CreditClientPort creditClient) {
+    return new ThirdPartyCreditPaymentStrategy(
+            customerClient, transactionRepository, creditClient);
   }
 }

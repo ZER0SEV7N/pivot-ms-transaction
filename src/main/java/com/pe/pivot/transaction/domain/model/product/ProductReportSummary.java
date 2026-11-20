@@ -1,5 +1,6 @@
-package com.pe.pivot.transaction.domain.model;
+package com.pe.pivot.transaction.domain.model.product;
 
+import com.pe.pivot.transaction.domain.model.Transaction;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;

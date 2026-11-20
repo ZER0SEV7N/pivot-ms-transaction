@@ -9,7 +9,7 @@ info:
     - `CREDIT_PAYMENT`: Pays loan installments or credit card debt.
     - `CREDIT_CONSUMPTION`: Charges purchases to a credit card's available line.
     - **Compensating Reversal (`POST /transactions/{id}/reverse`):** Financial ledger records are immutable (no PUT/DELETE). Errors are corrected via compensating reversal entries.
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: http://localhost:8084/api/v1
     description: Local Development Server (ms-transaction)
@@ -303,9 +303,13 @@ components:
         - DEPOSIT
         - WITHDRAWAL
         - CREDIT_PAYMENT
+        - THIRD_PARTY_CREDIT_PAYMENT
         - CREDIT_CONSUMPTION
         - TRANSFER_OUT
         - TRANSFER_IN
+        - DEBIT_CARD_PAYMENT
+        - DEBIT_CARD_WITHDRAWAL
+        - YANKI_PAYMENT
 
     TransferRequest:
       type: object
@@ -371,6 +375,8 @@ components:
       enum:
         - BANK_ACCOUNT
         - CREDIT_PRODUCT
+        - DEBIT_CARD
+        - YANKI_WALLET
 
     TransactionStatus:
       type: string

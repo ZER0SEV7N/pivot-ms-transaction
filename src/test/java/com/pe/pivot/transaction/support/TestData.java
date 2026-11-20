@@ -1,12 +1,12 @@
 package com.pe.pivot.transaction.support;
 
 import com.pe.pivot.transaction.domain.model.CustomerSummary;
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
-import com.pe.pivot.transaction.domain.model.ProductCategory;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionStatus;
 import com.pe.pivot.transaction.domain.model.TransactionType;
 import com.pe.pivot.transaction.domain.model.TransferCommand;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import java.math.BigDecimal;
 import java.time.Instant;
 

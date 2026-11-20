@@ -2,7 +2,7 @@ package com.pe.pivot.transaction.infrastructure.adapter.out.client;
 
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
 import com.pe.pivot.transaction.domain.exception.TargetProductNotFoundException;
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.port.out.CreditClientPort;
 import com.pe.pivot.transaction.infrastructure.adapter.out.client.dto.CreditClientResponse;
 import com.pe.pivot.transaction.infrastructure.adapter.out.client.dto.RemoteBalanceUpdateRequest;

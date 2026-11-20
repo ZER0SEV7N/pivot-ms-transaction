@@ -1,5 +1,6 @@
 package com.pe.pivot.transaction.domain.model;
 
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AllArgsConstructor;

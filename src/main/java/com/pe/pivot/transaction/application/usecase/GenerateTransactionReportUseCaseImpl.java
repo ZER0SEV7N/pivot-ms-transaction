@@ -1,9 +1,9 @@
 package com.pe.pivot.transaction.application.usecase;
 
-import com.pe.pivot.transaction.application.support.TransactionReportBuilder;
+import com.pe.pivot.transaction.application.support.transaction.TransactionReportBuilder;
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
-import com.pe.pivot.transaction.domain.model.ProductReportSummary;
 import com.pe.pivot.transaction.domain.model.Transaction;
+import com.pe.pivot.transaction.domain.model.product.ProductReportSummary;
 import com.pe.pivot.transaction.domain.port.in.GenerateTransactionReportUseCase;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
 import io.reactivex.rxjava3.core.Flowable;

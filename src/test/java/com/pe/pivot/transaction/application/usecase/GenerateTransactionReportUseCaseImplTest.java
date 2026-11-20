@@ -5,11 +5,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.pe.pivot.transaction.application.support.TransactionReportBuilder;
+import com.pe.pivot.transaction.application.support.transaction.TransactionReportBuilder;
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
-import com.pe.pivot.transaction.domain.model.ProductReportSummary;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionType;
+import com.pe.pivot.transaction.domain.model.product.ProductReportSummary;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
 import com.pe.pivot.transaction.support.TestData;
 import io.reactivex.rxjava3.core.Flowable;

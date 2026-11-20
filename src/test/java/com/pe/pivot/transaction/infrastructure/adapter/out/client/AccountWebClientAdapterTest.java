@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
 import com.pe.pivot.transaction.domain.exception.TargetProductNotFoundException;
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.support.TestCircuitBreakerFactory;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
