@@ -3,4 +3,4 @@ spring:
     name: ms-transaction
   config:
     import:
-      - "optional:configserver:http://localhost:8888"
+      - "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
