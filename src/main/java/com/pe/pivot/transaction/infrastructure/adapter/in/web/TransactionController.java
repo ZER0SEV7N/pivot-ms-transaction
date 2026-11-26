@@ -56,6 +56,8 @@ public class TransactionController {
    *     "currency": "USD",
    *     "description": "Payment for invoice #456"
    *     }
+   * @return A Single emitting the TransactionResponse for the registered transaction, or an error
+   *     if the registration fails.
    */
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)

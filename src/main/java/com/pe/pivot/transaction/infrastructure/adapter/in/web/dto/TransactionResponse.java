@@ -1,8 +1,8 @@
 package com.pe.pivot.transaction.infrastructure.adapter.in.web.dto;
 
-import com.pe.pivot.transaction.domain.model.ProductCategory;
 import com.pe.pivot.transaction.domain.model.TransactionStatus;
 import com.pe.pivot.transaction.domain.model.TransactionType;
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.Builder;

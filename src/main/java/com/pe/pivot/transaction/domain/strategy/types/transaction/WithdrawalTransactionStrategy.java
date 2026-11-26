@@ -1,8 +1,8 @@
-package com.pe.pivot.transaction.domain.strategy.types;
+package com.pe.pivot.transaction.domain.strategy.types.transaction;
 
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionType;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.port.out.AccountClientPort;
 import com.pe.pivot.transaction.domain.port.out.CustomerClientPort;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
@@ -10,12 +10,14 @@ import com.pe.pivot.transaction.domain.strategy.AbstractTransactionStrategy;
 import io.reactivex.rxjava3.core.Single;
 
 /**
- * Concrete Strategy for executing bank account DEPOSIT transactions against ms-account (:8082).
+ * Concrete Strategy for executing bank account WITHDRAWAL transactions against ms-account (:8082).
+ * This strategy handles the specific logic for processing withdrawals, including balance checks
+ * and ledger updates.
  */
-public class DepositTransactionStrategy extends AbstractTransactionStrategy {
+public class WithdrawalTransactionStrategy extends AbstractTransactionStrategy {
   private final AccountClientPort accountClient;
 
-  public DepositTransactionStrategy(
+  public WithdrawalTransactionStrategy(
       CustomerClientPort customerClient,
       TransactionRepositoryPort transactionRepository,
       AccountClientPort accountClient) {
@@ -24,18 +26,18 @@ public class DepositTransactionStrategy extends AbstractTransactionStrategy {
   }
 
   /**
-   * Returns the TransactionType that this strategy supports (DEPOSIT).
+   * Returns the TransactionType that this strategy supports, which is WITHDRAWAL.
    *
-   * @return TransactionType.DEPOSIT
+   * @return - the TransactionType. WITHDRAWAL enum value
    */
   @Override
   public TransactionType getSupportedType() {
-    return TransactionType.DEPOSIT;
+    return TransactionType.WITHDRAWAL;
   }
 
   /**
-   * Executes the remote balance update for a DEPOSIT transaction by calling the AccountClientPort
-   * to update the account balance.
+   * Executes the remote balance update for a withdrawal transaction by calling the ms-account
+   * service.
    *
    * @param transaction - the transaction for which the balance needs to be updated
    * @return - a Single emitting the ProductBalanceSnapshot after the balance update
@@ -44,7 +46,7 @@ public class DepositTransactionStrategy extends AbstractTransactionStrategy {
   protected Single<ProductBalanceSnapshot> executeRemoteBalanceUpdate(Transaction transaction) {
     return accountClient.updateAccountBalance(
             transaction.getTargetProductId(),
-            TransactionType.DEPOSIT.getRemoteOperationName(),
+            TransactionType.WITHDRAWAL.getRemoteOperationName(),
             transaction.getAmount()
     );
   }

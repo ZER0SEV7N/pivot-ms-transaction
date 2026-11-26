@@ -1,9 +1,9 @@
 package com.pe.pivot.transaction.infrastructure.adapter.out.persistence.mapper;
 
-import com.pe.pivot.transaction.domain.model.ProductCategory;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionStatus;
 import com.pe.pivot.transaction.domain.model.TransactionType;
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import com.pe.pivot.transaction.infrastructure.adapter.out.persistence.entity.TransactionDocument;
 import org.springframework.stereotype.Component;
 

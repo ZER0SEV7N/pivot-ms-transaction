@@ -2,9 +2,9 @@ package com.pe.pivot.transaction.domain.strategy;
 
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
 import com.pe.pivot.transaction.domain.exception.CustomerNotFoundException;
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionStatus;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.port.out.CustomerClientPort;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
 import io.reactivex.rxjava3.core.Completable;

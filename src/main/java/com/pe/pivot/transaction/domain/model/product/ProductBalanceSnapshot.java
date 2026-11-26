@@ -1,4 +1,4 @@
-package com.pe.pivot.transaction.domain.model;
+package com.pe.pivot.transaction.domain.model.product;
 
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;

@@ -3,12 +3,13 @@ package com.pe.pivot.transaction.application.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
-import com.pe.pivot.transaction.domain.model.ProductCategory;
+import com.pe.pivot.transaction.application.support.transaction.TransactionDomainEnricher;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionStatus;
 import com.pe.pivot.transaction.domain.model.TransactionType;
 import com.pe.pivot.transaction.domain.model.TransferCommand;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import com.pe.pivot.transaction.infrastructure.config.TransactionRulesProperties;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;

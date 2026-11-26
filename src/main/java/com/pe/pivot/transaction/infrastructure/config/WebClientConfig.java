@@ -21,6 +21,9 @@ public class WebClientConfig {
   @Value("${application.clients.credit-service.url:http://localhost:8083/api/v1/credits}")
   private String creditServiceUrl;
 
+  @Value("${application.clients.debit-card-service.url:http://localhost:8082/api/v1/debit-cards}")
+  private String debitCardServiceUrl;
+
   /**
    * Creates the WebClient used to communicate with ms-customer.
    *
@@ -55,5 +58,15 @@ public class WebClientConfig {
     return WebClient.builder()
             .baseUrl(creditServiceUrl)
             .build();
+  }
+
+  /**
+   * Creates the WebClient used to communicate with ms-debit-card.
+   *
+   * @return a configured WebClient for ms-debit-card
+   */
+  @Bean
+  public WebClient debitCardWebClient() {
+    return WebClient.builder().baseUrl(debitCardServiceUrl).build();
   }
 }

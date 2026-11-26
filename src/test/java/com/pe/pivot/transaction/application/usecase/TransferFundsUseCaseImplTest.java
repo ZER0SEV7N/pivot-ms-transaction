@@ -9,13 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.pe.pivot.transaction.application.support.TransactionDomainEnricher;
+import com.pe.pivot.transaction.application.support.transaction.TransactionDomainEnricher;
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
 import com.pe.pivot.transaction.domain.exception.CustomerNotFoundException;
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionType;
 import com.pe.pivot.transaction.domain.model.TransferCommand;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.port.out.AccountClientPort;
 import com.pe.pivot.transaction.domain.port.out.CustomerClientPort;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;

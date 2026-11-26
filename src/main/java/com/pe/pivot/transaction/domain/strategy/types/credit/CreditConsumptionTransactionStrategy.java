@@ -1,8 +1,8 @@
-package com.pe.pivot.transaction.domain.strategy.types;
+package com.pe.pivot.transaction.domain.strategy.types.credit;
 
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionType;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
 import com.pe.pivot.transaction.domain.port.out.CreditClientPort;
 import com.pe.pivot.transaction.domain.port.out.CustomerClientPort;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
@@ -10,33 +10,33 @@ import com.pe.pivot.transaction.domain.strategy.AbstractTransactionStrategy;
 import io.reactivex.rxjava3.core.Single;
 
 /**
- * Concrete Strategy for executing CREDIT_PAYMENT transactions against ms-credit (:8083).
+ * Concrete Strategy for executing CREDIT_CONSUMPTION transactions against ms-credit (:8083).
  */
-public class CreditPaymentTransactionStrategy extends AbstractTransactionStrategy {
+public class CreditConsumptionTransactionStrategy extends AbstractTransactionStrategy {
 
   private final CreditClientPort creditClient;
 
-  public CreditPaymentTransactionStrategy(
-          CustomerClientPort customerClient,
-          TransactionRepositoryPort transactionRepository,
-          CreditClientPort creditClient) {
+  public CreditConsumptionTransactionStrategy(
+      CustomerClientPort customerClient,
+      TransactionRepositoryPort transactionRepository,
+      CreditClientPort creditClient) {
     super(customerClient, transactionRepository);
     this.creditClient = creditClient;
   }
 
   /**
-   * Returns the TransactionType that this strategy supports, which is CREDIT_PAYMENT.
+   * Returns the TransactionType that this strategy supports, which is CREDIT_CONSUMPTION.
    *
-   * @return - the TransactionType supported by this strategy
+   * @return - the supported TransactionType
    */
   @Override
   public TransactionType getSupportedType() {
-    return TransactionType.CREDIT_PAYMENT;
+    return TransactionType.CREDIT_CONSUMPTION;
   }
 
   /**
-   * Executes the remote balance update for a CREDIT_PAYMENT transaction by calling the ms-credit
-   * service.
+   * Executes the remote balance update for a CREDIT_CONSUMPTION transaction by calling the
+   * ms-credit service.
    *
    * @param transaction - the transaction for which the balance needs to be updated
    * @return - a Single emitting the ProductBalanceSnapshot after the balance update
@@ -45,7 +45,7 @@ public class CreditPaymentTransactionStrategy extends AbstractTransactionStrateg
   protected Single<ProductBalanceSnapshot> executeRemoteBalanceUpdate(Transaction transaction) {
     return creditClient.updateCreditBalance(
             transaction.getTargetProductId(),
-            TransactionType.CREDIT_PAYMENT.getRemoteOperationName(),
+            TransactionType.CREDIT_CONSUMPTION.getRemoteOperationName(),
             transaction.getAmount()
     );
   }

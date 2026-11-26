@@ -2,9 +2,10 @@ package com.pe.pivot.transaction.application.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.pe.pivot.transaction.domain.model.ProductCategory;
-import com.pe.pivot.transaction.domain.model.ProductReportSummary;
+import com.pe.pivot.transaction.application.support.transaction.TransactionReportBuilder;
 import com.pe.pivot.transaction.domain.model.Transaction;
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
+import com.pe.pivot.transaction.domain.model.product.ProductReportSummary;
 import com.pe.pivot.transaction.support.TestData;
 import java.math.BigDecimal;
 import java.time.Instant;

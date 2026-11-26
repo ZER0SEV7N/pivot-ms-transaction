@@ -2,10 +2,10 @@ package com.pe.pivot.transaction.infrastructure.adapter.out.persistence.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.pe.pivot.transaction.domain.model.ProductCategory;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionStatus;
 import com.pe.pivot.transaction.domain.model.TransactionType;
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import com.pe.pivot.transaction.infrastructure.adapter.out.persistence.entity.TransactionDocument;
 import com.pe.pivot.transaction.support.TestData;
 import java.math.BigDecimal;

@@ -2,6 +2,7 @@ package com.pe.pivot.transaction.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

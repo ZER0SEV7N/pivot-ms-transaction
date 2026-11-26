@@ -9,14 +9,15 @@ import static org.mockito.Mockito.when;
 
 import com.pe.pivot.transaction.domain.exception.BusinessRuleException;
 import com.pe.pivot.transaction.domain.exception.CustomerNotFoundException;
-import com.pe.pivot.transaction.domain.model.ProductBalanceSnapshot;
-import com.pe.pivot.transaction.domain.model.ProductCategory;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionStatus;
 import com.pe.pivot.transaction.domain.model.TransactionType;
+import com.pe.pivot.transaction.domain.model.product.ProductBalanceSnapshot;
+import com.pe.pivot.transaction.domain.model.product.ProductCategory;
 import com.pe.pivot.transaction.domain.port.out.AccountClientPort;
 import com.pe.pivot.transaction.domain.port.out.CustomerClientPort;
 import com.pe.pivot.transaction.domain.port.out.TransactionRepositoryPort;
+import com.pe.pivot.transaction.domain.strategy.types.transaction.DepositTransactionStrategy;
 import com.pe.pivot.transaction.support.TestData;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;

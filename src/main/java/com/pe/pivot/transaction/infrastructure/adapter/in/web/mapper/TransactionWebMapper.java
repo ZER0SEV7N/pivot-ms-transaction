@@ -1,8 +1,8 @@
 package com.pe.pivot.transaction.infrastructure.adapter.in.web.mapper;
 
-import com.pe.pivot.transaction.domain.model.ProductReportSummary;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransferCommand;
+import com.pe.pivot.transaction.domain.model.product.ProductReportSummary;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.ProductReportResponse;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransactionRequest;
 import com.pe.pivot.transaction.infrastructure.adapter.in.web.dto.TransactionResponse;

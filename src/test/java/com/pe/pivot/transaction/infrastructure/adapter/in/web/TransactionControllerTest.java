@@ -6,10 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.pe.pivot.transaction.domain.model.ProductReportSummary;
 import com.pe.pivot.transaction.domain.model.Transaction;
 import com.pe.pivot.transaction.domain.model.TransactionType;
 import com.pe.pivot.transaction.domain.model.TransferCommand;
+import com.pe.pivot.transaction.domain.model.product.ProductReportSummary;
 import com.pe.pivot.transaction.domain.port.in.GenerateTransactionReportUseCase;
 import com.pe.pivot.transaction.domain.port.in.RegisterTransactionUseCase;
 import com.pe.pivot.transaction.domain.port.in.RetrieveTransactionUseCase;

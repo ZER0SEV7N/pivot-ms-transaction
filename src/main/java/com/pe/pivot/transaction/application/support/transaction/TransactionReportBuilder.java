@@ -1,7 +1,7 @@
-package com.pe.pivot.transaction.application.support;
+package com.pe.pivot.transaction.application.support.transaction;
 
-import com.pe.pivot.transaction.domain.model.ProductReportSummary;
 import com.pe.pivot.transaction.domain.model.Transaction;
+import com.pe.pivot.transaction.domain.model.product.ProductReportSummary;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Comparator;
