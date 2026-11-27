@@ -30,8 +30,8 @@ public class WebClientConfig {
    * @return a configured WebClient for ms-customer
    */
   @Bean
-  public WebClient customerWebClient() {
-    return WebClient.builder()
+  public WebClient customerWebClient(WebClient.Builder builder) {
+    return builder.clone()
             .baseUrl(customerServiceUrl)
             .build();
   }
@@ -42,8 +42,8 @@ public class WebClientConfig {
    * @return a configured WebClient for ms-account
    */
   @Bean
-  public WebClient accountWebClient() {
-    return WebClient.builder()
+  public WebClient accountWebClient(WebClient.Builder builder) {
+    return builder.clone()
             .baseUrl(accountServiceUrl)
             .build();
   }
@@ -54,8 +54,8 @@ public class WebClientConfig {
    * @return a configured WebClient for ms-credit
    */
   @Bean
-  public WebClient creditWebClient() {
-    return WebClient.builder()
+  public WebClient creditWebClient(WebClient.Builder builder) {
+    return builder.clone()
             .baseUrl(creditServiceUrl)
             .build();
   }
@@ -66,7 +66,7 @@ public class WebClientConfig {
    * @return a configured WebClient for ms-debit-card
    */
   @Bean
-  public WebClient debitCardWebClient() {
-    return WebClient.builder().baseUrl(debitCardServiceUrl).build();
+  public WebClient debitCardWebClient(WebClient.Builder builder) {
+    return builder.clone().baseUrl(debitCardServiceUrl).build();
   }
 }
