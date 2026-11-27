@@ -1,9 +1,9 @@
 {
   "info": {
     "_postman_id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "name": "Pivot Banking - ms-transaction (Phase II)",
-    "description": "Complete Postman Collection for pivot-ms-transaction covering Deposits, Withdrawals (with automatic commission capture), Credit Payments, Credit Consumptions, Inter-Account Bank Transfers, Compensating Reversals, Date-Range Product Reports, and Last 10 Card Movements.",
-    "schema": "[https://schema.getpostman.com/json/collection/v2.1.0/collection.json](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)"
+    "name": "Pivot Banking - ms-transaction (Phase III)",
+    "description": "Postman Collection for pivot-ms-transaction (Phase III): ledger entries (deposit, withdrawal, credit payment/consumption, debit card payment/withdrawal, third-party credit payment), inter-account transfers with compensation, compensating reversals, date-range reports and last 10 card movements. The YANKI_PAYMENT entry is created only by the Kafka consumer (yanki.payment.result), not by a REST endpoint. Prerequisites: run ms-customer, ms-account and ms-credit first; set customerId, sourceAccountId, destinationAccountId, creditCardId and debitCardId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
@@ -28,15 +28,24 @@
       ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{sourceAccountId}}\",\n  \"transactionType\": \"DEPOSIT\",\n  \"currency\": \"PEN\",\n  \"amount\": 300.00,\n  \"description\": \"Initial salary deposit\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions",
-          "host": ["{{urlMsTransaction}}"],
-          "path": ["transactions"]
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
         }
       }
     },
@@ -58,15 +67,25 @@
       ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"sourceAccountId\": \"{{sourceAccountId}}\",\n  \"destinationAccountId\": \"{{destinationAccountId}}\",\n  \"currency\": \"PEN\",\n  \"amount\": 120.00,\n  \"description\": \"Phase II transfer between bank accounts\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions/transfer",
-          "host": ["{{urlMsTransaction}}"],
-          "path": ["transactions", "transfer"]
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "transfer"
+          ]
         }
       }
     },
@@ -74,15 +93,24 @@
       "name": "3. Register Credit Card Consumption (201 Created)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_CONSUMPTION\",\n  \"currency\": \"PEN\",\n  \"amount\": 250.00,\n  \"description\": \"Online electronics purchase\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions",
-          "host": ["{{urlMsTransaction}}"],
-          "path": ["transactions"]
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
         }
       }
     },
@@ -90,15 +118,24 @@
       "name": "4. Register Credit Card Payment (201 Created)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"CREDIT_PAYMENT\",\n  \"currency\": \"PEN\",\n  \"amount\": 100.00,\n  \"description\": \"Partial monthly credit card payment\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions",
-          "host": ["{{urlMsTransaction}}"],
-          "path": ["transactions"]
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
         }
       }
     },
@@ -123,11 +160,24 @@
         "header": [],
         "url": {
           "raw": "{{urlMsTransaction}}/transactions/reports/product/{{sourceAccountId}}?startDate=2025-01-01T00:00:00Z&endDate=2027-12-31T23:59:59Z",
-          "host": ["{{urlMsTransaction}}"],
-          "path": ["transactions", "reports", "product", "{{sourceAccountId}}"],
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "reports",
+            "product",
+            "{{sourceAccountId}}"
+          ],
           "query": [
-            { "key": "startDate", "value": "2025-01-01T00:00:00Z" },
-            { "key": "endDate", "value": "2027-12-31T23:59:59Z" }
+            {
+              "key": "startDate",
+              "value": "2025-01-01T00:00:00Z"
+            },
+            {
+              "key": "endDate",
+              "value": "2027-12-31T23:59:59Z"
+            }
           ]
         }
       }
@@ -153,8 +203,16 @@
         "header": [],
         "url": {
           "raw": "{{urlMsTransaction}}/transactions/reports/card/{{creditCardId}}/last-movements",
-          "host": ["{{urlMsTransaction}}"],
-          "path": ["transactions", "reports", "card", "{{creditCardId}}", "last-movements"]
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "reports",
+            "card",
+            "{{creditCardId}}",
+            "last-movements"
+          ]
         }
       }
     },
@@ -162,26 +220,412 @@
       "name": "7. Reverse Transaction (Compensating Ledger Entry - POST /transactions/{id}/reverse)",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"reason\": \"Customer requested reversal of duplicate deposit\"\n}"
         },
         "url": {
           "raw": "{{urlMsTransaction}}/transactions/{{transactionId}}/reverse",
-          "host": ["{{urlMsTransaction}}"],
-          "path": ["transactions", "{{transactionId}}", "reverse"]
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "{{transactionId}}",
+            "reverse"
+          ]
         }
       }
+    },
+    {
+      "name": "8. Register Account Withdrawal (201 Created)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{sourceAccountId}}\",\n  \"transactionType\": \"WITHDRAWAL\",\n  \"currency\": \"PEN\",\n  \"amount\": 50,\n  \"description\": \"ATM withdrawal\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Register Debit Card Payment (201 Created - cascade in ms-account)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{debitCardId}}\",\n  \"transactionType\": \"DEBIT_CARD_PAYMENT\",\n  \"currency\": \"PEN\",\n  \"amount\": 80,\n  \"description\": \"POS payment with debit card\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Transaction type is DEBIT_CARD_PAYMENT\", function () { pm.expect(pm.response.json().transactionType).to.eql(\"DEBIT_CARD_PAYMENT\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Register Debit Card Withdrawal (201 Created)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{debitCardId}}\",\n  \"transactionType\": \"DEBIT_CARD_WITHDRAWAL\",\n  \"currency\": \"PEN\",\n  \"amount\": 40,\n  \"description\": \"ATM withdrawal with debit card\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Register Third-Party Credit Payment (201 Created)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"targetProductId\": \"{{creditCardId}}\",\n  \"transactionType\": \"THIRD_PARTY_CREDIT_PAYMENT\",\n  \"currency\": \"PEN\",\n  \"amount\": 30,\n  \"description\": \"Payment to a third-party credit product\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Get All Transactions (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "13. Get Transaction by ID (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/{{transactionId}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "{{transactionId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "14. Get Transaction by Operation Number (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/operation/{{operationNumber}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "operation",
+            "{{operationNumber}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "15. Get Transactions by Customer ID (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/customer/{{customerId}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "customer",
+            "{{customerId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "16. Get Transactions by Target Product ID (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/product/{{sourceAccountId}}",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "product",
+            "{{sourceAccountId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "17. [Error 400] Transfer with Insufficient Funds (compensation not needed)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/transfer",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "transfer"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"sourceAccountId\": \"{{sourceAccountId}}\",\n  \"destinationAccountId\": \"{{destinationAccountId}}\",\n  \"currency\": \"PEN\",\n  \"amount\": 9999999,\n  \"description\": \"Insufficient funds scenario\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18. [Error 404] Reverse an Unknown Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/64b000000000000000000000/reverse",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "64b000000000000000000000",
+            "reverse"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Unknown transaction\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19. [Error 404] Get Unknown Transaction by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{urlMsTransaction}}/transactions/64b000000000000000000000",
+          "host": [
+            "{{urlMsTransaction}}"
+          ],
+          "path": [
+            "transactions",
+            "64b000000000000000000000"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
     }
   ],
   "variable": [
-    { "key": "urlMsTransaction", "value": "http://localhost:8084/api/v1", "type": "string" },
-    { "key": "customerId", "value": "", "type": "string" },
-    { "key": "sourceAccountId", "value": "", "type": "string" },
-    { "key": "destinationAccountId", "value": "", "type": "string" },
-    { "key": "creditCardId", "value": "", "type": "string" },
-    { "key": "transactionId", "value": "", "type": "string" },
-    { "key": "operationNumber", "value": "", "type": "string" }
+    {
+      "key": "urlMsTransaction",
+      "value": "http://localhost:8084/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "",
+      "type": "string",
+      "description": "ID del cliente (ms-customer)."
+    },
+    {
+      "key": "sourceAccountId",
+      "value": "",
+      "type": "string",
+      "description": "Cuenta origen (ms-account)."
+    },
+    {
+      "key": "destinationAccountId",
+      "value": "",
+      "type": "string",
+      "description": "Cuenta destino (ms-account)."
+    },
+    {
+      "key": "creditCardId",
+      "value": "",
+      "type": "string",
+      "description": "Producto de crédito (ms-credit)."
+    },
+    {
+      "key": "transactionId",
+      "value": "",
+      "type": "string",
+      "description": "Se completa en el request 1."
+    },
+    {
+      "key": "operationNumber",
+      "value": "",
+      "type": "string",
+      "description": "Se completa en el request 1."
+    },
+    {
+      "key": "debitCardId",
+      "value": "",
+      "type": "string",
+      "description": "Tarjeta de débito ACTIVA (ms-account, request 14)."
+    }
   ]
 }
